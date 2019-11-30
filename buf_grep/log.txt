@@ -1,0 +1,14 @@
+21/Mar/2018 21:32:09 [200 1090] "GET https://sys.mail.ru/static/css/reset.css HTTPS/1.1"
+21/Mar/2018 21:32:09 [200 638 301 0] "GET https://mail.ru/fitness/pay_list HTTP/1.1"
+help
+21/Mar/2018 21:32:09 [200 1081] "GET https://sys.mail.ru/static/js/auth_error_message.js 500 HTTPS/1.1"
+21/Mar/2018 21:53:10 [301 0] "GET https://mail.ru/fitness/pay_list HTTP/1.1"
+ERROR [django.request:135] Internal Server Error: /fitness/pay_list/
+Traceback (most recent call last):
+  File "/root/lib/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/root/fitness_pay/views.py", line 80, in show_pays
+    raise Exception
+Exception
+21/Mar/2018 21:53:10 [500 120426] "GET https://corp.mail.ru/fitness/pay_list/ HTTP/1.1"
+21/Mar/2018 21:32:11 [200 1845 500 120426] "GET https://mail.ru/static/js/jquery-go-top/go-top.png HTTP/1.1"
