@@ -97,7 +97,7 @@ def main(args):
         for num, line in enumerate(f, 1):
             if ms.getDict().get(num):
                 return line.rstrip()
-        f.close()
+    f.close()
 
 if __name__ == '__main__':
     print(main(sys.argv))
