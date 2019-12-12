@@ -31,11 +31,12 @@ class File:
             print(list(self._data.keys())[:flag])
 
 def main():
-    with open('besy.txt', 'r') as fd:
-        fl = File(fd)
-        fl.pushData()
-        fl.get500FamousWord()
-    fd.close()
+    for i in xrange(1, 10):
+        with open('besy.txt', 'r') as fd:
+            fl = File(fd)
+            fl.pushData()
+            # fl.get500FamousWord()
+        fd.close()
 
 if __name__ == '__main__':
     import time, timeit
