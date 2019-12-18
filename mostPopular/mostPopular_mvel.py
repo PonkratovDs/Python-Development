@@ -21,7 +21,11 @@ class File(object):
                     self._data[word] = 1
 
     def get500FamousWord(self):
-        temp = sorted(list(self._data.items()), key=lambda x: x[1], reverse=True)
+        temp = sorted(
+            list(
+                self._data.items()),
+            key=lambda x: x[1],
+            reverse=True)
         self._data.clear()
         self._data.update(temp)
         lData = len(self._data)
@@ -33,7 +37,7 @@ class File(object):
 
 
 def main():
-    for i in xrange(1, 10):
+    for i in range(1, 10):
         with open('besy.txt', 'r') as fd:
             fl = File(fd)
             fl.pushData()

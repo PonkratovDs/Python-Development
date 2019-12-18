@@ -1,6 +1,5 @@
 import sys
 import os
-import collections
 
 '''
 идея: в начале берем кусок размером в строку в mess. Берем ее за базу динамики. Берем еще такую же часть. Проверяем на наличие \n. Если есть, то
@@ -8,16 +7,18 @@ import collections
 удаляя старую базу. Берем еще кусок такого же размера. Ищем. Таким образом у нас не будет случая, что подстрока есть, но мы ее не нашли. Не забываем
 с новой строки добавлять в начало буфер
 '''
+
+
 class MatchString:
     def __init__(self, data, length, fd):
-        self._data          = data
-        self._length        = length
-        self._fd            = fd
-        self._buffer        = ''
-        self._numberStr     = 1
-        self._pos           = 0
-        self._size          = 2*length
-        self._EOF           = None
+        self._data = data
+        self._length = length
+        self._fd = fd
+        self._buffer = ''
+        self._numberStr = 1
+        self._pos = 0
+        self._size = 2 * length
+        self._EOF = None
         self._dict_m_string = {}
 
     def newStr(self):
@@ -50,10 +51,10 @@ class MatchString:
             self.cutOffData()
 
     def cutOffData(self):
-        if self._length < self._size/2:
-            pass                                    #ничего не делаем, поскольку просто попалась малая строка в файле
+        if self._length < self._size / 2:
+            pass  # ничего не делаем, поскольку просто попалась малая строка в файле
         else:
-            self._data = self._data[int(self._size/2):]
+            self._data = self._data[int(self._size / 2):]
             self._length = len(self._data)
 
     def clearBuffer(self):
@@ -66,7 +67,8 @@ class MatchString:
         return False
 
     def findMatchingMessageString(self, m_mes):
-        if self._data.find(m_mes) != -1 and self._dict_m_string.get(self._numberStr) == 0:
+        if self._data.find(m_mes) != - \
+                1 and self._dict_m_string.get(self._numberStr) == 0:
             self._dict_m_string[self._numberStr] = 1
             return True
         return False
@@ -77,10 +79,12 @@ class MatchString:
     def getDict(self):
         return self._dict_m_string
 
+
 def main(args):
     m_br, m_mes = '[' + args[1] + ']', args[2]
     len_m_br, len_m_mes = len(m_mes), len(m_br)
-    len_m_str = len_m_mes if len_m_mes >= len_m_br else len_m_br                        #на случай, если длина строки в скобках будет больше, чем в mes
+    # на случай, если длина строки в скобках будет больше, чем в mes
+    len_m_str = len_m_mes if len_m_mes >= len_m_br else len_m_br
     fd = os.open("log.txt", os.O_RDONLY)
     slice_str = os.read(fd, len_m_str).decode('utf-8')
     ms = MatchString(slice_str, len_m_str, fd)
@@ -98,6 +102,7 @@ def main(args):
             if ms.getDict().get(num):
                 return line.rstrip()
     f.close()
+
 
 if __name__ == '__main__':
     print(main(sys.argv))
