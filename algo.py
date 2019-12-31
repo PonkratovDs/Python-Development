@@ -105,11 +105,17 @@ class heap:
             ansver.append(tmp)
             self._items.pop(i)
             self.maxHeapify(0)
-        return ansver
+        self._items = ansver
+
+    def heapPop(self, idx=0):
+        return self._items[idx]
+
+    def changeEleminHeap(self, idx, val):
+        self._items[idx] = val
 
 
 h = heap([4, 1, 3, 2, 16, 9, 10, 14, 8, 7])
-print(h.heapSort())
+h.heapSort()
 
 '''import heapq
 
@@ -118,23 +124,37 @@ heapq.heapify(x)
 print(heapq.heappop(x), heapq.heappop(x),end=' mm ')'''
 
 
-class priorityQueue(heap):
+class priorityQueue():
 
-    def __init__(self, heap):
+    def __init__(self, heap:'heap class'):
         self.heap = heap
         self.HeapSize = heap.heapSize()
 
     def heapMaximum(self):
-        return self._items[0]
+        return self.heap.heapPop()
 
     def heapExtractMax(self):
         if self.HeapSize < 1:
             raise Exception('Очередь пуста')
-        max_ = self.heap._items[0]
-        self.heap._items[0] = self.heap._items[self.HeapSize]
+        max_ = self.heap.heapPop()
+        self.heap.changeEleminHeap(0, self.heap.heapPop(self.HeapSize - 1))
         self.HeapSize -= 1
         self.heap.maxHeapify(0)
         return max_
 
+    def heapIncreaseKey(self, i, key):
+        if key < self.heap.heapPop(i):
+            raise Exception('Новый ключ меньше текущего')
+        self.heap.changeEleminHeap(i, key)
+        parIdx = (i-1) // 2
+        while i > 0 and self.heap.heapPop(parIdx) < self.heap.heapPop(i):
+            tmp = self.heap.heapPop(i)
+            self.heap.changeEleminHeap(i, self.heap.heapPop(parIdx))
+            self.heap.changeEleminHeap(parIdx, tmp)
+            i = parIdx
+
 p = priorityQueue(h)
-print(p.heapExtractMax())
+h.__str__()
+
+print('max', p.heapExtractMax())
+
