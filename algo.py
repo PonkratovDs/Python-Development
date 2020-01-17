@@ -411,10 +411,365 @@ class SentielDoubleLinkedList:
             x = x.next
         return str_
 
+    def list_union(self, dl):
+        dl.list_delete(0)
+        dl[1].next = self._nil
+        self._nil.prev = dl[1]
+        dl[1].prev = self[1]
+        self[1].next = dl[1]
+        dl[-1].prev = self[-1]
+        self[-1].next = dl[-1]
+        self._items.extend(dl._items[1:])
+        dl._items = []
 
-'''db = SentielDoubleLinkedList()
+
+'''
+db = SentielDoubleLinkedList()
 db.list_insert(List(key=125))
 db.list_insert(List(key=124))
+db.list_insert(List(key=126))
 print('sDl', db.__str__())
 db.list_delete(1)
+print('sDl', db.__str__())
+dl = SentielDoubleLinkedList()
+dl.list_insert(List(key=25))
+dl.list_insert(List(key=24))
+dl.list_insert(List(key=23))
+db.list_union(dl)
 print('sDl', db.__str__())'''
+
+
+class Tool:
+    def __init__(self, key, left, right, p):
+        super().__init__()
+        self.key = key
+        self.left = left
+        self.right = right
+        self.p = p
+
+
+class BinTree:
+    def __init__(self):
+        super().__init__()
+        self._items = []
+        self._length = 0
+        self._len = 0
+
+    def __len__(self):
+        return len(self._items)
+
+    def __getitem__(self, key):
+        return self._items[key]
+
+    def create_bin_tree(self, arr):
+        arr.sort()
+        arr.append(None)
+        len_ = len(arr)
+        if not len_:
+            return Tool(None, None, None, None)
+        length = (len_ - 1) / 2 - 1 if len_ % 2 else (len_ - 2) / 2 - 1
+        self._length = int(length)
+        if len_ == 1:
+            self._items.append(Tool(arr[0], None, None, None))
+            return None
+        elif len_ == 2:
+            self._items.append(Tool(arr[0], arr[1], None, None))
+        else:
+            self._items.append(Tool(arr[0], arr[1], arr[2], None))
+
+        for i in range(2, self._length):
+            self._items.append(Tool(arr[i], arr[2 * i + 1], arr[2 * i + 2],
+                                    arr[i - 1]))
+        t = self._length
+        if t > 0:
+            if 2 * (t + 1) + 1 == len_:
+                self._items.append(Tool(arr[t], arr[2 * t + 1], None,
+                                        arr[t - 1]))
+            elif 2 * (t + 1) + 2 == len_:
+                self._items.append(Tool(arr[t], arr[2 * t + 1], arr[2 * t + 2],
+                                        arr[t - 1]))
+            else:
+                print('bad')
+        self._len = len(self)
+        self._items.append(None)
+
+    def __str__(self):
+        super().__str__()
+        self._length = len(self)
+        str_ = ''
+        for t in self._items:
+            str_ += 'tool key: ' + str(t.key) +\
+                    ' left: ' + str(t.left) + \
+                    ' right: ' + str(t.right) + \
+                    ' parent: ' + str(t.p) + '\n'
+        return str_[:-1]
+
+    def tree_search(self, k, i=0):
+        el = self[i]
+        if el is None:
+            return
+        elif el.key == k:
+            return el
+        elif el.left == k:
+            return el
+        elif el.right == k:
+            return el
+        else:
+            i += 1
+            self.tree_search(k, i)
+
+
+'''b = BinTree()
+b.create_bin_tree([6, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 12, 54, 34, 7, 354, 65])
+print(b.tree_search(6))'''
+
+
+class VerTree:
+
+    def __init__(self, key, child, p):
+        super().__init__()
+        self.key = key
+        self.child = {}
+        self.p = p
+
+
+class BTree:
+
+    def __init__(self):
+        self._items = []
+
+    def __getitem__(self, k):
+        return self._items[k]
+
+    def create_BTree(self, items):
+        items.sort(reverse=True)
+        max_idx = len(items) - 1
+        while items:
+            self._items.append(
+                VerTree(
+                    items.pop(), {
+                        'left': None, 'right': None}, None))
+        j = 1 if max_idx % 2 else 2
+        i = 0
+        while 2 * i + j <= max_idx:
+            self[i].child['left'] = self[2 * i + 1]
+            self[2 * i + 1].p = self[i]
+            if 2 * i + 2 <= max_idx:
+                self[i].child['right'] = self[2 * i + 2]
+                self[2 * i + 2].p = self[i]
+            if i > 0:
+                self[i].p = self[i - 1]
+            i += 1
+
+    def __str__(self):
+        super().__str__()
+        str_ = ''
+        for t in self._items:
+            str_ += 'key: ' + str(t.key)
+            if 'left' in t.child:
+                if t.child['left'] is not None:
+                    str_ += ' left: ' + str(t.child['left'].key)
+                else:
+                    str_ += ' left: ' + str(t.child['left'])
+            if 'right' in t.child:
+                if t.child['right'] is not None:
+                    str_ += ' right: ' + str(t.child['right'].key)
+                else:
+                    str_ += ' right: ' + str(t.child['right'])
+            if t.p is not None:
+                str_ += ' parent: ' + str(t.p.key) + '\n'
+            else:
+                str_ += ' parent: ' + str(t.p) + '\n'
+        return str_[:-1]
+
+    def tree_search(self, x, k):
+        if not 'left' in x.child or k == x.key:
+            return x
+        if k < x.key:
+            return self.tree_search(x.child['left'], k)
+        else:
+            return self.tree_search(x.child['right'], k)
+
+
+'''b = BTree()
+b.create_BTree([214, 346, 8656, 3])
+print(b.tree_search(b[0], 214).key)
+print(b.__str__())'''
+
+
+class RbNode:
+
+    def __init__(self, key):
+        super().__init__()
+
+        self.key = key
+        self.red = True
+        self.left = None
+        self.right = None
+        self.parent = None
+
+
+class RbTree:
+
+    def __init__(self):
+        self.root = None
+
+    def search(self, key):
+        current_node = self.root
+        while current_node is not None and key != current_node.key:
+            if key < current_node.key:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        return current_node
+
+    def fix_tree(self, node):
+        try:
+            while node.parent.red is True and node is not self.root:
+                if node.parent == node.parent.parent.left:
+                    uncle = node.parent.parent.right
+                    if uncle.red:
+                        node.parent.red = False
+                        uncle.red = False
+                        node.parent.parent.red = True
+                        node = node.parent.parent
+                    else:
+                        if node == node.parent.right:
+                            node = node.parent
+                else:
+                    try:
+                        uncle = node.parent.parent.left
+                        if uncle.red:
+                            node.parent.red = False
+                            uncle.red = False
+                            node.parent.parent.red = True
+                    except AttributeError:
+                        print("DOES NOT GAVE UNCLE")
+                        break
+            self.root.red = False
+        except AttributeError:
+            print("\n\nTree BUILT")
+
+    def insert(self, key):
+        node = RbNode(key)
+        if self.root is None:
+            node.red = False
+            self.root = node
+            return
+        last_node = self.root
+        while last_node is not None:
+            potential_parent = last_node
+            if key < last_node.key:
+                last_node = last_node.left
+            else:
+                last_node = last_node.right
+        node.parent = potential_parent
+        if key < potential_parent.key:
+            node.parent.left = node
+        else:
+            node.parent.right = node
+        node.left = None
+        node.right = None
+        self.fix_tree(node)
+
+    def del_node(self, key):
+        current_node = self.search(key)
+        if current_node is None:
+            return
+        elif current_node.parent is None:
+            if current_node == self.root:
+                self.root = None
+            return
+        elif current_node.parent.left == current_node:
+            current_node.parent = None
+        else:
+            current_node.parent = None
+
+    '''def transplant(self, u, v):
+        if u == self.root:
+            self.root = v
+        elif u == u.parent.left:
+            u.parent.left = v
+        else:
+            u.parent.right = v
+        v.parent = u.parent
+
+    def minimum(self, z):
+        current_node = z
+        while current_node.left is not None:
+            current_node = current_node.left
+        return current_node
+
+    def delete(self, key):
+        z = self.search(key)
+        y = z
+        y_original_color = y.red
+        if z.left is None:
+            x = z.right
+            self.transplant(z, z.right)
+        elif z.right is None:
+            x = z.left
+            self.transplant(z, z.left)
+        else:
+            y = self.minimum(z.right)
+            y_original_color = y.red
+            x= y.right
+            if y.parent == z:
+                x.parent = y
+            else:
+                self.transplant(y, y.right)
+                y.right = z.right
+                y.right.parent = y
+            self.transplant(z, y)
+            y.left = z.left
+            z.left.parent = y
+            y.red = z.red
+        if y_original_color == False:
+            self.fix_tree(x)'''
+
+
+'''t = RbTree()
+t.insert(12)
+t.insert(45)
+t.del_node(415)
+print(t.root.key)'''
+
+
+class AVLNode:
+
+    def __init__(self, key):
+        super().__init__()
+        self.key = key
+        self.left = None
+        self.right = None
+        self._height = 0
+
+    def heighted(self, mt):
+        if mt == 'left':
+            return self.left._height if self.left else 0
+        elif mt == 'right':
+            return self.right._height if self.right else 0
+
+    def bfactor(self):
+        return self.heighted('right') - self.heighted('left')
+
+    def fixheight(self):
+        hl = self.heighted('left')
+        hr = self.heighted('right')
+        self._height = (hl if hl > hr else hr) + 1
+
+    def rotateright(self):
+        q = self.left
+        self.left = q.right
+        q.right = self
+        self.fixheight()
+        q.fixheight()
+        return q
+
+    def rotateleft(self):
+        p = self.right
+        self.right = p.left
+        p.left = self
+        self.fixheight()
+        p.fixheight()
+        return p
