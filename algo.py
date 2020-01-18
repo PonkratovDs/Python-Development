@@ -742,6 +742,7 @@ class AVLNode:
         self.key = key
         self.left = None
         self.right = None
+        self.parent = None
         self._height = 0
 
     def heighted(self, mt):
@@ -773,3 +774,47 @@ class AVLNode:
         self.fixheight()
         p.fixheight()
         return p
+
+    def balance(self):
+        self.fixheight()
+        if self.bfactor() == 2:
+            if self.right.bfactor() < 0:
+                self.right = self.right.rotateright()
+            return self.rotateleft()
+        if self.bfactor() == -2:
+            if self.left.bfactor() > 0:
+                self.left = self.left.rotateleft()
+            return self.rotateright
+        return self
+
+class AVLTree:
+
+    def __init__(self):
+        super().__init__()
+        self.root = None
+
+    def insert(self, key):
+        node = AVLNode(key)
+        if self.root is None:
+            self.root = node
+            return
+        last_node = self.root
+        while last_node is not None:
+            potential_parent = last_node
+            if key < last_node.key:
+                last_node = last_node.left
+            else:
+                last_node = last_node.right
+        node.parent = potential_parent
+        if key < potential_parent.key:
+            node.parent.left = node
+        else:
+            node.parent.right = node
+        node.left = None
+        node.right = None
+        node.balance()
+
+a = AVLTree()
+a.insert(125)
+a.insert(54)
+print(a.root.left._height)
