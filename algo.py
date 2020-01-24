@@ -1,3 +1,4 @@
+import functools
 def InsertionSort(ar):
     for j in range(1, len(ar)):
         key = ar[j]
@@ -787,12 +788,16 @@ class AVLNode:
             return self.rotateright
         return self
 
+def pre(cond, message):
+    def wrapper(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            assert cond(*args, **kwargs), message
+            return func(*args, **kwargs)
+        return inner
+    return wrapper
 
-def _isEmpty(func):
-    def wrapper(self):
-        if self.root is None:
-            return
-
+isEmpty = pre(lambda self, *args: self.root is not None, 'tree is empty')
 
 class AVLTree:
 
@@ -821,12 +826,13 @@ class AVLTree:
         node.right = None
         node.balance()
 
-    #@_isEmpty
+    @isEmpty
     def findmin(self, p=None):
         if p is None:
             p = self.root
         return self.findmin(p.left) if p.left else p
 
+    @isEmpty
     def removemin(self, p=None):
         if p is None:
             p = self.root
@@ -835,36 +841,15 @@ class AVLTree:
         p.left = self.removemin(p.left)
         return p.balance()
 
+    @isEmpty
     def remove(self, key, p=None):
         if p is None:
             pass
 
 
 a = AVLTree()
-a.insert(125)
-a.insert(54)
-a.removemin()
+#a.insert(125)
+#a.insert(54)
+#a.removemin()
 print(a.findmin().key)
 
-import functools
-import sys
-
-
-def trace(func=None, *, handle=sys.stdout):
-    if func is None:
-        return lambda func: trace(func, handle=handle)
-
-    @functools.wraps(func)
-    def inner(*args, **kwargs):
-        print(func.__name__, args, kwargs)
-        return func(*args, **kwargs)
-    return inner
-
-
-@trace(handle=sys.stdout)
-def identity(x):
-    "i do"
-    return x
-
-
-print(identity('23'), identity.__doc__)
