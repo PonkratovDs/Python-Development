@@ -1,4 +1,6 @@
 import functools
+
+
 def InsertionSort(ar):
     for j in range(1, len(ar)):
         key = ar[j]
@@ -788,6 +790,7 @@ class AVLNode:
             return self.rotateright
         return self
 
+
 def pre(cond, message):
     def wrapper(func):
         @functools.wraps(func)
@@ -797,7 +800,9 @@ def pre(cond, message):
         return inner
     return wrapper
 
+
 isEmpty = pre(lambda self, *args: self.root is not None, 'tree is empty')
+
 
 class AVLTree:
 
@@ -826,16 +831,17 @@ class AVLTree:
         node.right = None
         node.balance()
 
+    def initial_node(self, p):
+        return self.root if p is None else p
+
     @isEmpty
     def findmin(self, p=None):
-        if p is None:
-            p = self.root
+        p = self.initial_node(p)
         return self.findmin(p.left) if p.left else p
 
     @isEmpty
     def removemin(self, p=None):
-        if p is None:
-            p = self.root
+        p = self.initial_node(p)
         if p.left is None:
             return p.right
         p.left = self.removemin(p.left)
@@ -843,13 +849,118 @@ class AVLTree:
 
     @isEmpty
     def remove(self, key, p=None):
-        if p is None:
-            pass
+        p = self.initial_node(p)
+        if p.left is None and p.right is None and p.key != key:
+            return None
+        if key < p.key:
+            p.left = self.remove(key, p.left)
+        elif key > p.key:
+            p.right = self.remove(key, p.right)
+        else:
+            q = p.left
+            r = p.right
+            del p
+            if not r:
+                return q
+            min_ = self.findmin(r)
+            min_.right = self.removemin(r)
+            min_.left = q
+            return min_.balance
 
 
-a = AVLTree()
-#a.insert(125)
-#a.insert(54)
-#a.removemin()
-print(a.findmin().key)
+class RBNode:
 
+    def __init__(self, key):
+        super().__init__()
+        self.key = key
+        self.p = None
+        self.left = None
+        self.right = None
+        self.color = 'BLACK'
+
+
+class RBTree:
+
+    def __init__(self):
+        super().__init__()
+        self.nil = RBNode(None)
+        self.root = None
+
+    def Left_Rotate(self, x):
+        if x.right == self.nil:
+            return
+
+        y = x.right
+        x.right = y.left
+
+        if y.left != self.nil:
+            y.left.p = x
+        y.p = x.p
+        if x.p == self.nil:
+            self.root = y
+        elif x == x.p.left:
+            x.p.left = y
+        else:
+            x.p.right = y
+        y.left = x
+
+        x.p = y
+
+    def Right_Rotate(self, y):
+        if y.left == self.nil:
+            return
+
+        x = y.left
+        y.left = x.right
+
+        if x.right != self.nil:
+            x.right.p = y
+        x.p = y.p
+        if y.p == self.nil:
+            self.root = x
+        elif y == y.p.right:
+            y.p.right = x
+        else:
+            y.p.left = x
+        x.right = y
+
+        y.p = x
+
+    def RB_Insert_Fixup(self, z):
+        while z.p.color == 'RED':
+            if z.p == z.p.p.left:
+                y = z.p.p.right
+                if y.color == 'RED':
+                    z.p.color = 'BLACK'
+                    y.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    z = z.p.p
+                elif z == z.p.right:
+                    z = z.p
+                    self.Left_Rotate(z)
+                    pass
+
+    def RB_Insert(self, z: 'RBNode'):
+        if self.root is None:
+            self.root = z
+            self.root.p = self.nil
+            return
+
+        y = self.nil
+        x = self.root
+        while x != self.nil:
+            y = x
+            if z.key < x.key:
+                x = x.left
+            else:
+                x = x.right
+        z.p = y
+
+        if z.key < y.key:
+            y.left = z
+        else:
+            y.right = z
+        z.left = self.nil
+        z.right = self.nil
+        z.color = 'RED'
+        self.RB_Insert_Fixup(z)

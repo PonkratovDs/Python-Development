@@ -23,6 +23,7 @@ print(identity('23'), identity.__doc__)
 
 import time
 
+
 def timethis(func=None, *, n_iter=100):
     if func is None:
         return lambda func: timethis(func, n_iter=n_iter)
@@ -41,6 +42,7 @@ def timethis(func=None, *, n_iter=100):
 
 #timethis(sum)(range(10 ** 6))
 
+
 def profiled(func):
     @functools.wraps(func)
     def inner(*args, **kwargs):
@@ -50,12 +52,16 @@ def profiled(func):
     inner.ncalls = 0
     return inner
 
+
 @profiled
 def identi(x):
     return x
+
+
 '''for i in range(0, 10):
     identity(42)
 print(identity.ncalls)'''
+
 
 def memoized(func):
     cache = {}
@@ -68,13 +74,17 @@ def memoized(func):
         return cache[key]
     return inner
 
+
 @memoized
 def plus(x, y):
     return x + y
+
+
 for i in range(0, 10):
     plus(i, 10 - i)
 
 from warnings import warn_explicit
+
 
 def deprecated(func):
     code = func.__code__
@@ -85,10 +95,12 @@ def deprecated(func):
         lineno=code.co_firstlineno + 1)
     return func
 
+
 @deprecated
 def identit(x):
     x += 1
     return x
+
 
 def pre(cond, message):
     def wrapper(func):
@@ -98,13 +110,17 @@ def pre(cond, message):
             return func(*args, **kwargs)
         return inner
     return wrapper
+
+
 from math import log
+
 
 @pre(lambda x: x >= 0, 'nefative argument')
 def checked_log(x):
     return log(x)
 
-#checked_log(43)
+# checked_log(43)
+
 
 f = functools.partial(sorted, key=lambda p: p[1])
 print(f([('a', 34), ('b', 23)]))
