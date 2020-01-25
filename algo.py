@@ -938,7 +938,24 @@ class RBTree:
                 elif z == z.p.right:
                     z = z.p
                     self.Left_Rotate(z)
-                    pass
+                    z.p.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    self.Right_Rotate(z.p.p)
+            else:
+                y = z.p.p.left
+                if y.color == 'RED':
+                    z.p.color = 'BLACK'
+                    y.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    z = z.p.p
+                elif z == z.p.left:
+                    z = z.p
+                    self.Right_Rotate(z)
+                    z.p.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    self.Left_Rotate(z.p.p)
+
+        self.root.color = 'BLACK'
 
     def RB_Insert(self, z: 'RBNode'):
         if self.root is None:
