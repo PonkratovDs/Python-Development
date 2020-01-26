@@ -1122,6 +1122,22 @@ class RBTree(object):
         sibling.right = new_node
         new_node.parent = sibling
 
+    def transplant(self, node, tr_node):
+        if node.parent == NIL:
+            self.root = tr_node
+        elif node == node.parent.left:
+            node.parent.left = tr_node
+        else:
+            node.parent.right = tr_node
+        tr_node.parent = node.parent
+
+    def delete(self, del_node):
+        tmp = del_node
+        tmp_original_color = tmp.red
+        if del_node.left == NIL:
+            child_right = del_node.right
+            self.transplant(del_node, del_node.right)
+
 
 if __name__ == "__main__":
     tree = RBTree()
