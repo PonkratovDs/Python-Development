@@ -868,7 +868,7 @@ class AVLTree:
             return min_.balance
 
 
-class RBNode:
+'''class RBNode:
 
     def __init__(self, key):
         super().__init__()
@@ -927,7 +927,8 @@ class RBTree:
         y.p = x
 
     def RB_Insert_Fixup(self, z):
-        while z.p.color == 'RED':
+        z.color = 'RED'
+        while z is not self.root and z.p.color == 'RED':
             if z.p == z.p.p.left:
                 y = z.p.p.right
                 if y.color == 'RED':
@@ -938,9 +939,11 @@ class RBTree:
                 elif z == z.p.right:
                     z = z.p
                     self.Left_Rotate(z)
+
                     z.p.color = 'BLACK'
                     z.p.p.color = 'RED'
                     self.Right_Rotate(z.p.p)
+
             else:
                 y = z.p.p.left
                 if y.color == 'RED':
@@ -961,11 +964,12 @@ class RBTree:
         if self.root is None:
             self.root = z
             self.root.p = self.nil
+            self.root.left = self.nil
+            self.root.right = self.nil
             return
-
         y = self.nil
         x = self.root
-        while x != self.nil:
+        while x is not self.nil:
             y = x
             if z.key < x.key:
                 x = x.left
@@ -981,3 +985,21 @@ class RBTree:
         z.right = self.nil
         z.color = 'RED'
         self.RB_Insert_Fixup(z)
+
+rb = RBTree()
+rb.RB_Insert(RBNode(12))
+
+rb.RB_Insert(RBNode(11))
+rb.RB_Insert(RBNode(98))
+rb.RB_Insert(RBNode(3))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))'''
