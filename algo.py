@@ -1004,39 +1004,36 @@ rb.RB_Insert(RBNode(12))
 rb.RB_Insert(RBNode(12))
 rb.RB_Insert(RBNode(12))'''
 
-class NilNode:
+
+class NilNode(object):
     def __init__(self):
-        super().__init__()
         self.red = False
+
 
 NIL = NilNode()
 
-class RBNode:
 
+class RBNode(object):
     def __init__(self, key):
-        super().__init__()
         self.red = False
-        self.p = None
+        self.parent = None
         self.key = key
         self.left = NIL
         self.right = NIL
 
-class RBTree:
 
+class RBTree(object):
     def __init__(self):
-        super().__init__()
         self.root = None
         self.size = 0
 
     def insert(self, key):
         self.size += 1
         new_node = RBNode(key)
-
-        if self.root == None:
+        if self.root is None:
             new_node.red = False
             self.root = new_node
             return
-
         currentNode = self.root
         while currentNode != NIL:
             potentialParent = currentNode
@@ -1044,16 +1041,15 @@ class RBTree:
                 currentNode = currentNode.left
             else:
                 currentNode = currentNode.right
-
-        new_node_parrent = potentialParent
-        if new_node.key < new_node_parrent.key:
-            new_node_parrent.left = new_node
+        new_node.parent = potentialParent
+        if new_node.key < new_node.parent.key:
+            new_node.parent.left = new_node
         else:
-            new_node_parrent.right = new_node
-        self.fix_tree(new_node)
+            new_node.parent.right = new_node
+        self.fix_tree_after_add(new_node)
 
     def contains(self, key, curr=None):
-        if curr == None:
+        if curr is None:
             curr = self.root
         while curr != NIL and key != curr.key:
             if key < curr.key:
@@ -1062,7 +1058,7 @@ class RBTree:
                 curr = curr.right
         return curr
 
-    def fix_tree(self, new_node):
+    def fix_tree_after_add(self, new_node):
         while new_node.parent.red == True and new_node != self.root:
             if new_node.parent == new_node.parent.parent.left:
                 uncle = new_node.parent.parent.right
@@ -1075,13 +1071,65 @@ class RBTree:
                     if new_node == new_node.parent.right:
                         new_node = new_node.parent
                         self.left_rotate(new_node)
-
                     new_node.parent.red = False
                     new_node.parent.parent.red = True
                     self.right_rotate(new_node.parent.parent)
             else:
-                uncle = new_node.parent.left
+                uncle = new_node.parent.parent.left
                 if uncle.red:
                     new_node.parent.red = False
                     uncle.red = False
-                    new_node.parent.parent.red = 
+                    new_node.parent.parent.red = True
+                    new_node = new_node.parent.parent
+                else:
+                    if new_node == new_node.parent.left:
+                        new_node = new_node.parent
+                        self.right_rotate(new_node)
+                    new_node.parent.red = False
+                    new_node.parent.parent.red = True
+                    self.left_rotate(new_node.parent.parent)
+        self.root.red = False
+
+    def left_rotate(self, new_node):
+        sibling = new_node.right
+        new_node.right = sibling.left
+        if sibling.left is not None:
+            sibling.left.parent = new_node
+        sibling.parent = new_node.parent
+        if new_node.parent is None:
+            self.root = sibling
+        else:
+            if new_node == new_node.parent.left:
+                new_node.parent.left = sibling
+            else:
+                new_node.parent.right = sibling
+        sibling.left = new_node
+        new_node.parent = sibling
+
+    def right_rotate(self, new_node):
+        sibling = new_node.left
+        new_node.right = sibling.right
+        if sibling.right is not None:
+            sibling.right.parent = new_node
+        sibling.parent = new_node.parent
+        if new_node.parent is None:
+            self.root = sibling
+        else:
+            if new_node == new_node.parent.right:
+                new_node.parent.right = sibling
+            else:
+                new_node.parent.left = sibling
+        sibling.right = new_node
+        new_node.parent = sibling
+
+
+if __name__ == "__main__":
+    tree = RBTree()
+    tree.insert(1)
+    # print(tree.root)
+    tree.insert(3)
+    tree.insert(4)
+    tree.insert(3)
+    tree.insert(4)
+    print(tree.contains(3).key)
+    print(tree.root.key)
