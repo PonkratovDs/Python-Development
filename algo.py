@@ -1003,3 +1003,85 @@ rb.RB_Insert(RBNode(12))
 rb.RB_Insert(RBNode(12))
 rb.RB_Insert(RBNode(12))
 rb.RB_Insert(RBNode(12))'''
+
+class NilNode:
+    def __init__(self):
+        super().__init__()
+        self.red = False
+
+NIL = NilNode()
+
+class RBNode:
+
+    def __init__(self, key):
+        super().__init__()
+        self.red = False
+        self.p = None
+        self.key = key
+        self.left = NIL
+        self.right = NIL
+
+class RBTree:
+
+    def __init__(self):
+        super().__init__()
+        self.root = None
+        self.size = 0
+
+    def insert(self, key):
+        self.size += 1
+        new_node = RBNode(key)
+
+        if self.root == None:
+            new_node.red = False
+            self.root = new_node
+            return
+
+        currentNode = self.root
+        while currentNode != NIL:
+            potentialParent = currentNode
+            if new_node.key < currentNode.key:
+                currentNode = currentNode.left
+            else:
+                currentNode = currentNode.right
+
+        new_node_parrent = potentialParent
+        if new_node.key < new_node_parrent.key:
+            new_node_parrent.left = new_node
+        else:
+            new_node_parrent.right = new_node
+        self.fix_tree(new_node)
+
+    def contains(self, key, curr=None):
+        if curr == None:
+            curr = self.root
+        while curr != NIL and key != curr.key:
+            if key < curr.key:
+                curr = curr.left
+            else:
+                curr = curr.right
+        return curr
+
+    def fix_tree(self, new_node):
+        while new_node.parent.red == True and new_node != self.root:
+            if new_node.parent == new_node.parent.parent.left:
+                uncle = new_node.parent.parent.right
+                if uncle.red:
+                    new_node.parent.red = False
+                    uncle.red = False
+                    new_node.parent.parent.red = True
+                    new_node = new_node.parent.parent
+                else:
+                    if new_node == new_node.parent.right:
+                        new_node = new_node.parent
+                        self.left_rotate(new_node)
+
+                    new_node.parent.red = False
+                    new_node.parent.parent.red = True
+                    self.right_rotate(new_node.parent.parent)
+            else:
+                uncle = new_node.parent.left
+                if uncle.red:
+                    new_node.parent.red = False
+                    uncle.red = False
+                    new_node.parent.parent.red = 
