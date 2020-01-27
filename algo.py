@@ -1125,27 +1125,105 @@ class RBTree(object):
     def transplant(self, node, tr_node):
         if node.parent == NIL:
             self.root = tr_node
-        elif node == node.parent.left:
-            node.parent.left = tr_node
-        else:
-            node.parent.right = tr_node
-        tr_node.parent = node.parent
+        if node.parent is not None:
+            if node == node.parent.left:
+                node.parent.left = tr_node
+            else:
+                node.parent.right = tr_node
+            tr_node.parent = node.parent
 
-    def delete(self, del_node):
+    def tree_minimum(self, current_node):
+        while current_node.left != NIL:
+            current_node = current_node.left
+        return current_node
+
+    '''def delete(self, del_node):
+        if del_node == NIL:
+            return
+        elif del_node == self.root:
+            if del_node.left:
+                del_node.left = self.root
+                self.right_rotate(del_node)
+                self.delete_fixup(del_node.left)
+                return
         tmp = del_node
         tmp_original_color = tmp.red
         if del_node.left == NIL:
-            child_right = del_node.right
+            child = del_node.right
             self.transplant(del_node, del_node.right)
+        elif del_node.right == NIL:
+            child = del_node.left
+            self.transplant(del_node, del_node.left)
+        else:
+            tmp = self.tree_minimum(del_node.right)
+            tmp_original_color = tmp.red
+            child = tmp.right
+            if tmp.parent == del_node:
+                child.parent = tmp
+            else:
+                self.transplant(tmp, tmp.right)
+                tmp.right = del_node.right
+                tmp.right.parent = tmp
+            self.transplant(del_node, tmp)
+            tmp.left = del_node.left
+            tmp.left.parent = tmp
+            tmp.red = del_node.red
+        if not tmp_original_color:
+            self.delete_fixup(child)
+
+    def delete_fixup(self, child):
+        while child != self.root and not child.red:
+            if child == child.parent.left:
+                brother = child.parent.right
+                if brother.red:
+                    brother.red = False
+                    child.parent.red = True
+                    self.left_rotate(child.parent)
+                    brother = child.parent.right
+                if brother != NIL:
+                    if not brother.left.red and not brother.right.red:
+                        brother.red = True
+                        child = child.parent
+                    elif not brother.right.red:
+                        brother.left.red = False
+                        brother.red = True
+                        self.right_rotate(brother)
+                        brother = child.parent.right
+                    brother.red = child.parent.red
+                    child.parent.red = False
+                    brother.right.color = False
+                    self.left_rotate(child.parent)
+                child = self.root
+            else:
+                brother = child.parent.left
+                if brother.red:
+                    brother.red = False
+                    child.parent.red = True
+                    self.right_rotate(child.parent)
+                    brother = child.parent.left
+                if brother != NIL:
+                    if not brother.right.red and not brother.left.red:
+                        brother.red = True
+                        child = child.parent
+                    elif not brother.left.red:
+                        brother.right.red = False
+                        brother.red = True
+                        self.left_rotate(brother)
+                        brother = child.parent.left
+                    brother.red = child.parent.red
+                    child.parent.red = False
+                    brother.left.color = False
+                    self.right_rotate(child.parent)
+                child = self.root'''
 
 
 if __name__ == "__main__":
     tree = RBTree()
     tree.insert(1)
-    # print(tree.root)
     tree.insert(3)
     tree.insert(4)
     tree.insert(3)
     tree.insert(4)
+    #tree.delete(tree.contains(1))
     print(tree.contains(3).key)
     print(tree.root.key)
