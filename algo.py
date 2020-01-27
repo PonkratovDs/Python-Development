@@ -1009,6 +1009,9 @@ class NilNode(object):
     def __init__(self):
         self.red = False
 
+    def children_count(self):
+        return 0
+
 
 NIL = NilNode()
 
@@ -1021,11 +1024,31 @@ class RBNode(object):
         self.left = NIL
         self.right = NIL
 
+    def __str__(self):
+        return '{color} {key} Node'.format(color='RED' if self.red else 'BLACK', key = self.key)
+
+    def __iter__(self):
+        yield self.key
+        if self.left != NIL:
+            yield from self.left.__iter__()
+        if self.right != NIL:
+            yield from self.right.__iter__()
+
+    def children_count(self) -> int:
+        return sum((int(self.left != NIL), int(self.right != NIL)))
+
+    def has_children(self) -> bool:
+        return bool(self.children_count())
 
 class RBTree(object):
     def __init__(self):
         self.root = None
         self.size = 0
+
+    def __iter__(self):
+        if not self.root:
+            return list()
+        yield from self.root.__iter__()
 
     def insert(self, key):
         self.size += 1
@@ -1137,6 +1160,11 @@ class RBTree(object):
             current_node = current_node.left
         return current_node
 
+    def delete(self, key):
+        delete_node = self.contains(key)
+        if delete_node == NIL:
+            return
+        
     '''def delete(self, del_node):
         if del_node == NIL:
             return
@@ -1220,10 +1248,12 @@ class RBTree(object):
 if __name__ == "__main__":
     tree = RBTree()
     tree.insert(1)
-    tree.insert(3)
+    tree.insert(2)
     tree.insert(4)
-    tree.insert(3)
-    tree.insert(4)
+    tree.insert(5)
+    tree.insert(7)
+
     #tree.delete(tree.contains(1))
-    print(tree.contains(3).key)
+    print(tree.contains(3))
     print(tree.root.key)
+
