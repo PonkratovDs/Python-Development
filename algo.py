@@ -1160,11 +1160,54 @@ class RBTree(object):
             current_node = current_node.left
         return current_node
 
+    '''def _find_in_order_successor(self, node_to_remove):
+        right_node = node_to_remove.right
+        left_child_node = right_node.left
+        if left_child_node == NIL:
+            return right_node
+        while left_child_node.left != NIL:
+            left_child_node = left_child_node.left
+        return left_child_node
+
     def delete(self, key):
-        delete_node = self.contains(key)
-        if delete_node == NIL:
+        node_to_remove = self.contains(key)
+        if node_to_remove  == NIL:
             return
-        
+        if node_to_remove.children_count() == 2:
+            successor = self._find_in_order_successor(node_to_remove)
+            node_to_remove.key = successor.key  # switch the value
+            node_to_remove = successor
+        self._remove(node_to_remove)
+        self.size -= 1
+
+    def _remove(self, node):
+        left_child = node.left
+        right_child = node.right
+        not_nil_child = left_child if left_child != NIL else right_child
+        if node == self.root:
+            if not_nil_child != NIL:
+                self.root = not_nil_child
+                self.root.parent = None
+                self.root.red = False
+            else:
+                self.root = None
+        elif node.color:
+            if not node.has_children():
+                self._remove_leaf(node)
+            else:
+                raise Exception('Unexpected behavior')
+        else:
+            if right_child.has_children() or left_child.has_children():
+                raise Exception('The red child of a black node with 0 or 1 children'
+                                ' cannot have children, otherwise the black height of the tree becomes invalid! ')
+            if not_nil_child.red:
+                node.key = not_nil_child.key
+                node.left = not_nil_child.left
+                node.right = not_nil_child.right
+            else:
+                self._remove_black_node(node)'''
+
+
     '''def delete(self, del_node):
         if del_node == NIL:
             return
@@ -1245,7 +1288,7 @@ class RBTree(object):
                 child = self.root'''
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     tree = RBTree()
     tree.insert(1)
     tree.insert(2)
@@ -1255,5 +1298,22 @@ if __name__ == "__main__":
 
     #tree.delete(tree.contains(1))
     print(tree.contains(3))
-    print(tree.root.key)
+    print(tree.root.key)'''
 
+def memoized_cut_rod(prices, cut_num):
+    new_prices = []
+    _inf = float('-inf')
+    for i in range(0, cut_num + 1):
+        new_prices.append(_inf)
+    return memoized_cut_rod_aux(prices, cut_num, new_prices)
+
+def memoized_cut_rod_aux(prices, cut_nom, new_prices):
+    if new_prices[cut_nom] >= 0:
+        return new_prices[cut_nom]
+    curr_price = 0 if cut_nom == 0 else float('-inf')
+    for curr_nom in range(1, cut_nom + 1):
+        curr_price = max(curr_nom, prices[curr_nom] + memoized_cut_rod_aux(prices, cut_nom - curr_nom, new_prices))
+    new_prices[cut_nom] = curr_price
+    return curr_price
+
+print(memoized_cut_rod([1, 2, 3, 4], 3))
