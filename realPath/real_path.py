@@ -1,9 +1,4 @@
-from os import path, getcwd
-
-# delete this segment
-print('path', path.realpath('.../.s/././/sd//../.d./../..'))
-getcwd()
-#________
+from os import getcwd
 
 
 class NodeDLinkedList:
@@ -120,11 +115,6 @@ class RealPath:
         self._num_remove_segments -= 1
 
     def _clean_slash(self, NIL):
-        curr_symbol = self._DLL.NIL.prev
-        if curr_symbol.key == '/':
+        curr_symbol = NIL.prev
+        if curr_symbol.key == '/' and curr_symbol.prev != NIL:
             self._DLL.delete(curr_symbol)
-
-
-RP = RealPath('.../.s/././//sd////../.d./////../..')
-print(RP.real_path())
-
