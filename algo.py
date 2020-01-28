@@ -1316,4 +1316,13 @@ def memoized_cut_rod_aux(prices, cut_nom, new_prices):
     new_prices[cut_nom] = curr_price
     return curr_price
 
-print(memoized_cut_rod([1, 2, 3, 4], 3))
+def bottom_up_cut_rod(prices, cut_num):
+    new_prices = [0]
+    mInf = float('-inf')
+    for j in range(1, cut_num + 1):
+        curr_price = mInf
+        for i in range(1, j + 1):
+            curr_price = max(curr_price, prices[i] + new_prices[j - i])
+        new_prices.append(curr_price)
+    return new_prices[cut_num]
+print(bottom_up_cut_rod([1, 2, 3, 4], 1))
