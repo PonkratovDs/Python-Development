@@ -1,7 +1,7 @@
 from os import path, getcwd
 
 # delete this segment
-print('path', path.realpath('.../.s/./././//..'))
+print('path', path.realpath('.../.s/././/sd//../.d./../..'))
 getcwd()
 #________
 
@@ -68,11 +68,10 @@ class RealPath:
 
     def _fill_DLinkedList(self):
         path = self.user_path
-        if path[0] == '.' :
+        if path[0] == '.':
             path = getcwd() + '/' + path
         for idx in range(0, len(path)):
             self._DLL.insert(path[idx])
-
 
     def real_path(self):
         self._fill_DLinkedList()
@@ -86,10 +85,14 @@ class RealPath:
                     self._two_dots(curr_symbol)
                 elif curr_symbol.prev.key == '.' and curr_symbol.prev.prev.key == '/':
                     self._two_slash_and_dot(curr_symbol)
+                elif curr_symbol.prev.key == '/':
+                    self._DLL.delete(curr_symbol)
+                elif self._num_remove_segments:
+                    self._remove_segment(curr_symbol)
             curr_symbol = curr_symbol.prev
+        self._clean_slash(NIL)
 
-
-
+        return str(self._DLL)
 
     def _two_dots(self, curr_symbol):
         self._DLL.delete(curr_symbol)
@@ -108,8 +111,20 @@ class RealPath:
             self._DLL.delete(curr_symbol.prev)
             self._num_remove_segments += 1
 
+    def _remove_segment(self, curr_symbol):
+        self._DLL.delete(curr_symbol)
+        curr_symbol = curr_symbol.prev
+        while curr_symbol.key != '/':
+            self._DLL.delete(curr_symbol)
+            curr_symbol = curr_symbol.prev
+        self._num_remove_segments -= 1
+
+    def _clean_slash(self, NIL):
+        curr_symbol = self._DLL.NIL.prev
+        if curr_symbol.key == '/':
+            self._DLL.delete(curr_symbol)
 
 
-RP = RealPath('.../.s/././../.d./../..')
-RP.real_path()
-print(RP._DLL)
+RP = RealPath('.../.s/././//sd////../.d./////../..')
+print(RP.real_path())
+
