@@ -49,10 +49,10 @@ class DLinkedList:
     def __str__(self):
         super().__str__()
         str_ = ''
-        curr_node = self.NIL.prev
+        curr_node = self.NIL.follow
         while curr_node != self.NIL:
             str_ += str(curr_node.key)
-            curr_node = curr_node.prev
+            curr_node = curr_node.follow
         return str_
 
 
@@ -64,14 +64,12 @@ class RealPath:
         self._DLL = DLinkedList()
 
     def _fill_DLinkedList(self):
-        pass
+        path = self.user_path
+        for idx in range(0, len(path)):
+            self._DLL.insert(path[idx])
 
 
 
-
-DLL = DLinkedList()
-for i in range(1, 101):
-    DLL.insert(i)
-DLL.delete(DLL.NIL.prev.prev)
-DLL._back_list_crowl()
-print(DLL)
+RP = RealPath('./.s/./././//')
+RP._fill_DLinkedList()
+print(RP._DLL)
