@@ -14,22 +14,21 @@ class DLinkedList:
 
     def __init__(self):
         super().__init__()
-        self.NIL = NodeDLinkedList()
+        self.nil = NodeDLinkedList()
 
     def insert(self, key):
-        new_node = NodeDLinkedList(key=key, follow=self.NIL)
-        if self.NIL.prev is not None:
-            new_node.prev = self.NIL.prev
-            self.NIL.prev.follow = new_node
+        new_node = NodeDLinkedList(key=key, follow=self.nil)
+        if self.nil.prev is not None:
+            new_node.prev = self.nil.prev
+            self.nil.prev.follow = new_node
         else:
-            new_node.prev = self.NIL
-            self.NIL.follow = new_node
-        self.NIL.prev = new_node
+            new_node.prev = self.nil
+            self.nil.follow = new_node
+        self.nil.prev = new_node
 
     def delete(self, del_node):
-        # т.к. более вероятно, что с конца будет элемент в реализации ниже
-        curr_node = self.NIL.prev
-        while curr_node != self.NIL:
+        curr_node = self.nil.prev
+        while curr_node != self.nil:
             if curr_node == del_node:
                 del_node.prev.follow = del_node.follow
                 del_node.follow.prev = del_node.prev
@@ -38,16 +37,16 @@ class DLinkedList:
             curr_node = curr_node.prev
 
     def _back_list_crowl(self):
-        curr_node = self.NIL.prev
-        while curr_node != self.NIL:
+        curr_node = self.nil.prev
+        while curr_node != self.nil:
             print(curr_node.key)
             curr_node = curr_node.prev
 
     def __str__(self):
         super().__str__()
         str_ = ''
-        curr_node = self.NIL.follow
-        while curr_node != self.NIL:
+        curr_node = self.nil.follow
+        while curr_node != self.nil:
             str_ += str(curr_node.key)
             curr_node = curr_node.follow
         return str_
@@ -58,7 +57,7 @@ class RealPath:
     def __init__(self, path):
         super().__init__()
         self.user_path = path
-        self._DLL = DLinkedList()
+        self._dll = DLinkedList()
         self._num_remove_segments = 0
 
     def _fill_DLinkedList(self):
@@ -66,55 +65,65 @@ class RealPath:
         if path[0] == '.':
             path = getcwd() + '/' + path
         for idx in range(0, len(path)):
-            self._DLL.insert(path[idx])
+            self._dll.insert(path[idx])
 
     def real_path(self):
         self._fill_DLinkedList()
-        NIL = self._DLL.NIL
+        nil = self._dll.nil
 
-        curr_symbol = self._DLL.NIL.prev
+        curr_symbol = self._dll.nil.prev
         self._clean_end()
-        while curr_symbol != NIL:
+        while curr_symbol != nil:
             if curr_symbol.key == '/':
                 if curr_symbol.prev.key == '.' and curr_symbol.prev.prev.key == '.' and curr_symbol.prev.prev.prev.key == '/':
                     self._two_dots(curr_symbol)
                 elif curr_symbol.prev.key == '.' and curr_symbol.prev.prev.key == '/':
                     self._two_slash_and_dot(curr_symbol)
                 elif curr_symbol.prev.key == '/':
-                    self._DLL.delete(curr_symbol)
+                    self._dll.delete(curr_symbol)
                 elif self._num_remove_segments:
                     self._remove_segment(curr_symbol)
             curr_symbol = curr_symbol.prev
-        self._clean_slash(NIL)
+        self._clean_slash(nil)
 
-        return str(self._DLL)
+        return str(self._dll)
 
     def _two_dots(self, curr_symbol):
-        self._DLL.delete(curr_symbol)
-        self._DLL.delete(curr_symbol.prev)
-        self._DLL.delete(curr_symbol.prev.prev)
+        self._dll.delete(curr_symbol)
+        self._dll.delete(curr_symbol.prev)
+        self._dll.delete(curr_symbol.prev.prev)
         self._num_remove_segments += 1
 
     def _two_slash_and_dot(self, curr_symbol):
-        self._DLL.delete(curr_symbol)
-        self._DLL.delete(curr_symbol.prev)
+        self._dll.delete(curr_symbol)
+        self._dll.delete(curr_symbol.prev)
 
     def _clean_end(self):
-        curr_symbol = self._DLL.NIL.prev
+        curr_symbol = self._dll.nil.prev
         if curr_symbol.key == '.' and curr_symbol.prev.key == '.':
-            self._DLL.delete(curr_symbol)
-            self._DLL.delete(curr_symbol.prev)
+            self._dll.delete(curr_symbol)
+            self._dll.delete(curr_symbol.prev)
             self._num_remove_segments += 1
 
     def _remove_segment(self, curr_symbol):
-        self._DLL.delete(curr_symbol)
+        self._dll.delete(curr_symbol)
         curr_symbol = curr_symbol.prev
         while curr_symbol.key != '/':
-            self._DLL.delete(curr_symbol)
+            self._dll.delete(curr_symbol)
             curr_symbol = curr_symbol.prev
         self._num_remove_segments -= 1
 
-    def _clean_slash(self, NIL):
-        curr_symbol = NIL.prev
-        if curr_symbol.key == '/' and curr_symbol.prev != NIL:
-            self._DLL.delete(curr_symbol)
+    def _clean_slash(self, nil):
+        curr_symbol = nil.prev
+        if curr_symbol.key == '/' and curr_symbol.prev != nil:
+            self._dll.delete(curr_symbol)
+
+
+import random
+import string
+
+def get_random_path(size):
+    hash_and_dot = ['.', '/', '/./', '/../']
+    hash_and_dot.extend(['' for _ in range(100)])
+    random_str = ''.join(random.choice(string.ascii_letters + string.digits) + ''.join(random.choices(hash_and_dot, k=10)) for _ in range(size))
+    return random.choice([random_str, './' + random_str])
