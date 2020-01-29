@@ -62,7 +62,7 @@ class RealPath:
 
     def _fill_DLinkedList(self):
         path = self.user_path
-        if path[0] == '.':
+        if path[0] == '.' or self._not_dot_or_slash(path[0]):
             path = getcwd() + '/' + path
         for idx in range(0, len(path)):
             self._dll.insert(path[idx])
@@ -100,7 +100,7 @@ class RealPath:
 
     def _clean_end(self):
         curr_symbol = self._dll.nil.prev
-        if curr_symbol.key == '.' and curr_symbol.prev.key == '.':
+        if curr_symbol.key == '.' and curr_symbol.prev.key == '.' and curr_symbol.prev.prev.key == '/':
             self._dll.delete(curr_symbol)
             self._dll.delete(curr_symbol.prev)
             self._num_remove_segments += 1
@@ -117,13 +117,9 @@ class RealPath:
         curr_symbol = nil.prev
         if curr_symbol.key == '/' and curr_symbol.prev != nil:
             self._dll.delete(curr_symbol)
+        elif curr_symbol.key == '.' and curr_symbol.prev.key == '/':
+            self._dll.delete(curr_symbol)
+            self._dll.delete(curr_symbol.prev)
 
-
-import random
-import string
-
-def get_random_path(size):
-    hash_and_dot = ['.', '/', '/./', '/../']
-    hash_and_dot.extend(['' for _ in range(100)])
-    random_str = ''.join(random.choice(string.ascii_letters + string.digits) + ''.join(random.choices(hash_and_dot, k=10)) for _ in range(size))
-    return random.choice([random_str, './' + random_str])
+    def _not_dot_or_slash(self, curr_symbol_key):
+        return True if curr_symbol_key != '.' and curr_symbol_key != '/' else False
