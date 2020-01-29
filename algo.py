@@ -1325,4 +1325,56 @@ def bottom_up_cut_rod(prices, cut_num):
             curr_price = max(curr_price, prices[i] + new_prices[j - i])
         new_prices.append(curr_price)
     return new_prices[cut_num]
-print(bottom_up_cut_rod([1, 2, 3, 4], 1))
+
+def extended_bottom_up_cut_rod(p, n):
+    r = [-1 for _ in range(len(p))]
+    s = [-1 for _ in range(len(p))]
+    mInf = float('-inf')
+    for j in range(1, n + 1):
+        q = mInf
+        for i in range(1, j + 1):
+            if q < p[i] + r[j - i]:
+                q = p[i] + r[j - i]
+                s[j] = i
+        r[j] = q
+    return r, s
+
+def print_cut_rod_solution(p, n):
+    _, s = extended_bottom_up_cut_rod(p, n)
+    while n > 0:
+        print(s[n])
+        n -= s[n]
+
+def calculation_fibonacci(number):
+    if number == 0:
+        return 0
+    elif number == 1:
+        return 1
+    else:
+        return calculation_fibonacci(number - 1) + calculation_fibonacci(number - 2)
+
+def memoized_fibonacci(number):
+    mInf = float('-inf')
+    storage = [mInf for _ in range(number + 1)]
+    storage[0] = 0
+    storage[1] = 1
+    return memoized_fibonacci_aux(number, storage)
+
+def memoized_fibonacci_aux(number, storage):
+    if storage[number] >= 0:
+        return storage[number]
+    else:
+        i = 2
+        while i < number:
+            storage[i] = storage[i - 1]  + storage[i - 2]
+            i += 1
+    return storage[number - 1] + storage[number - 2]
+
+def bottom_up_fibonacci(number):
+    storage = [0 for _ in range(number + 1)]
+    storage[0] = 0
+    storage[1] = 1
+
+    for j in range(2, number + 1):
+        storage[j] = storage[j - 1] + storage[j - 2]
+    return storage[number]
