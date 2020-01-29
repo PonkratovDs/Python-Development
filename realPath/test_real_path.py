@@ -18,7 +18,7 @@ class TestRealPath(unittest.TestCase):
     def _get_test_case(self):
         test_cases = []
         for num in range(0, 1000):
-            random_path = get_random_path(256)
+            random_path = get_random_path()
             test_cases.append(
                 TestCase(
                     input_data=random_path,
