@@ -1378,3 +1378,53 @@ def bottom_up_fibonacci(number):
     for j in range(2, number + 1):
         storage[j] = storage[j - 1] + storage[j - 2]
     return storage[number]
+
+def lcs_length(X, Y):
+    m = len(X)
+    n = len(Y)
+    b = [[0 for _ in range(0, n)] for _ in range(0, m)]
+    c = [[0 for _ in range(0, n + 1)] for _ in range(0, m + 1)]
+    for i in range(1, m ):
+        for j in range(1, n):
+            if X[i] == Y[j]:
+                c[i][j] = c[i - 1][j - 1] + 1
+                b[i][j] = '/'
+            elif c[i - 1][j] >= c[i][j - 1]:
+                c[i][j] = c[i - 1][j]
+                b[i][j] = '|'
+            else:
+                c[i][j] = c[i][j - 1]
+                b[i][j] = '_'
+    return c, b
+
+def print_lcs(b,X, i, j):
+    if i == 0 or j == 0:
+        return
+    if b[i][j] == '/':
+        print_lcs(b, X, i - 1, j - 1)
+        print(X[i])
+    elif b[i][j] == '|':
+        print_lcs(b, X, i - 1, j)
+    else:
+        print_lcs(b, X, i, j - 1)
+
+'''c, b = lcs_length('sfsdf', 'sdefdsfds')
+X, Y = 'sfsdf', 'sdefdsfds'
+print_lcs(b, X, len(X) - 1, len(Y) - 1)'''
+
+
+def long_increase_seq(seq):
+    storage = {i:[] for i in range(0, len(seq))}
+    prev_el_seq = seq[0]
+    i = 0
+    j = 0
+    storage[i].append(prev_el_seq)
+    for el_seq in seq:
+        while prev_el_seq <= el_seq:
+            storage[i].append(el_seq)
+            prev_el_seq = el_seq
+            j += 1
+            el_seq = seq[i + j]
+        i += 1
+        j = 0
+    return storage
