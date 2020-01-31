@@ -1412,19 +1412,37 @@ def print_lcs(b,X, i, j):
 X, Y = 'sfsdf', 'sdefdsfds'
 print_lcs(b, X, len(X) - 1, len(Y) - 1)'''
 
+def optimal_bst(p, q, n):
+    e = [[0 for _ in range(0, n + 1)] for _ in range(1, n + 2)]
+    w = [[0 for _ in range(0, n + 1)] for _ in range(1, n + 2)]
+    root = [[0 for _ in range(1, n + 1)] for _ in range(1, n + 1)]
+    inf = float('inf')
 
-def long_increase_seq(seq):
-    storage = {i:[] for i in range(0, len(seq))}
-    prev_el_seq = seq[0]
-    i = 0
-    j = 0
-    storage[i].append(prev_el_seq)
-    for el_seq in seq:
-        while prev_el_seq <= el_seq:
-            storage[i].append(el_seq)
-            prev_el_seq = el_seq
-            j += 1
-            el_seq = seq[i + j]
-        i += 1
-        j = 0
-    return storage
+    for i in range(1, n + 2):
+        e[i][i - 1] = q[i - 1]
+        w[i][i - 1] = q[i - 1]
+    for l in range(1, n + 1):
+        for i in range(1, n - l + 2):
+            j = i + l - 1
+            e[i][j] = inf
+            w[i][j] = w[i][j - 1] + p[j] + q[j]
+            for r in range(i, j + 1):
+                t = e[i][r - 1] + e[r + 1][j] + w[i][j]
+                if t < e[i][j]:
+                    e[i][j] = t
+                    root[i][j] = r
+    return e, root
+
+def inc_seq(items):
+    prev_el = items[0]
+    tmp = [prev_el]
+    max_inc_seq = tmp
+    for curr_el in items[1:]:
+        if prev_el <= curr_el:
+            tmp.append(curr_el)
+        else:
+            tmp = [curr_el]
+        if len(tmp) > len(max_inc_seq):
+            max_inc_seq = tmp
+        prev_el = curr_el
+    return max_inc_seq
