@@ -32,7 +32,7 @@ class TestRealPath(unittest.TestCase):
         for t in test_cases:
             print('Test number {num}  is run'.format(num=t.num_test), end=' ... ')
             RP = real_path.RealPath(t.input_data)
-            #print(RP.user_path)                    #for debug
+            # print(RP.user_path)                    #for debug
             self.assertEqual(hash(t.expected), hash(RP.real_path()))
             del RP
             print('Done')

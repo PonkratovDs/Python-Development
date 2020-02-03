@@ -1025,7 +1025,8 @@ class RBNode(object):
         self.right = NIL
 
     def __str__(self):
-        return '{color} {key} Node'.format(color='RED' if self.red else 'BLACK', key = self.key)
+        return '{color} {key} Node'.format(
+            color='RED' if self.red else 'BLACK', key=self.key)
 
     def __iter__(self):
         yield self.key
@@ -1039,6 +1040,7 @@ class RBNode(object):
 
     def has_children(self) -> bool:
         return bool(self.children_count())
+
 
 class RBTree(object):
     def __init__(self):
@@ -1207,7 +1209,6 @@ class RBTree(object):
             else:
                 self._remove_black_node(node)'''
 
-
     '''def delete(self, del_node):
         if del_node == NIL:
             return
@@ -1300,6 +1301,7 @@ class RBTree(object):
     print(tree.contains(3))
     print(tree.root.key)'''
 
+
 def memoized_cut_rod(prices, cut_num):
     new_prices = []
     _inf = float('-inf')
@@ -1307,14 +1309,23 @@ def memoized_cut_rod(prices, cut_num):
         new_prices.append(_inf)
     return memoized_cut_rod_aux(prices, cut_num, new_prices)
 
+
 def memoized_cut_rod_aux(prices, cut_nom, new_prices):
     if new_prices[cut_nom] >= 0:
         return new_prices[cut_nom]
     curr_price = 0 if cut_nom == 0 else float('-inf')
     for curr_nom in range(1, cut_nom + 1):
-        curr_price = max(curr_nom, prices[curr_nom] + memoized_cut_rod_aux(prices, cut_nom - curr_nom, new_prices))
+        curr_price = max(
+            curr_nom,
+            prices[curr_nom] +
+            memoized_cut_rod_aux(
+                prices,
+                cut_nom -
+                curr_nom,
+                new_prices))
     new_prices[cut_nom] = curr_price
     return curr_price
+
 
 def bottom_up_cut_rod(prices, cut_num):
     new_prices = [0]
@@ -1325,6 +1336,7 @@ def bottom_up_cut_rod(prices, cut_num):
             curr_price = max(curr_price, prices[i] + new_prices[j - i])
         new_prices.append(curr_price)
     return new_prices[cut_num]
+
 
 def extended_bottom_up_cut_rod(p, n):
     r = [-1 for _ in range(len(p))]
@@ -1339,11 +1351,13 @@ def extended_bottom_up_cut_rod(p, n):
         r[j] = q
     return r, s
 
+
 def print_cut_rod_solution(p, n):
     _, s = extended_bottom_up_cut_rod(p, n)
     while n > 0:
         print(s[n])
         n -= s[n]
+
 
 def calculation_fibonacci(number):
     if number == 0:
@@ -1351,7 +1365,9 @@ def calculation_fibonacci(number):
     elif number == 1:
         return 1
     else:
-        return calculation_fibonacci(number - 1) + calculation_fibonacci(number - 2)
+        return calculation_fibonacci(
+            number - 1) + calculation_fibonacci(number - 2)
+
 
 def memoized_fibonacci(number):
     mInf = float('-inf')
@@ -1360,15 +1376,17 @@ def memoized_fibonacci(number):
     storage[1] = 1
     return memoized_fibonacci_aux(number, storage)
 
+
 def memoized_fibonacci_aux(number, storage):
     if storage[number] >= 0:
         return storage[number]
     else:
         i = 2
         while i < number:
-            storage[i] = storage[i - 1]  + storage[i - 2]
+            storage[i] = storage[i - 1] + storage[i - 2]
             i += 1
     return storage[number - 1] + storage[number - 2]
+
 
 def bottom_up_fibonacci(number):
     storage = [0 for _ in range(number + 1)]
@@ -1379,12 +1397,13 @@ def bottom_up_fibonacci(number):
         storage[j] = storage[j - 1] + storage[j - 2]
     return storage[number]
 
+
 def lcs_length(X, Y):
     m = len(X)
     n = len(Y)
     b = [[0 for _ in range(0, n)] for _ in range(0, m)]
     c = [[0 for _ in range(0, n + 1)] for _ in range(0, m + 1)]
-    for i in range(1, m ):
+    for i in range(1, m):
         for j in range(1, n):
             if X[i] == Y[j]:
                 c[i][j] = c[i - 1][j - 1] + 1
@@ -1397,7 +1416,8 @@ def lcs_length(X, Y):
                 b[i][j] = '_'
     return c, b
 
-def print_lcs(b,X, i, j):
+
+def print_lcs(b, X, i, j):
     if i == 0 or j == 0:
         return
     if b[i][j] == '/':
@@ -1408,9 +1428,11 @@ def print_lcs(b,X, i, j):
     else:
         print_lcs(b, X, i, j - 1)
 
+
 '''c, b = lcs_length('sfsdf', 'sdefdsfds')
 X, Y = 'sfsdf', 'sdefdsfds'
 print_lcs(b, X, len(X) - 1, len(Y) - 1)'''
+
 
 def optimal_bst(p, q, n):
     e = [[0 for _ in range(0, n + 1)] for _ in range(1, n + 2)]
@@ -1433,6 +1455,7 @@ def optimal_bst(p, q, n):
                     root[i][j] = r
     return e, root
 
+
 def inc_seq(items):
     prev_el = items[0]
     tmp = [prev_el]
@@ -1446,3 +1469,107 @@ def inc_seq(items):
             max_inc_seq = tmp
         prev_el = curr_el
     return max_inc_seq
+
+
+def minimal_path_field(size_x, size_y, A: 'arr[size_y - 1][size_x - 1]'):
+    inf = float('inf')
+    W = [[inf for _ in range(0, size_x)] for _ in range(0, size_y)]
+    W[0][0] = A[0][0]
+    W[1][0] = W[0][0] + A[1][0]
+    W[0][1] = W[0][0] + A[0][1]
+
+    for i in range(1, size_y):
+        for j in range(1, size_x):
+            W[i][j] = min(W[i - 1][j], W[i][j - 1], W[i - 1][j - 1]) + A[i][j]
+
+    return W[size_y - 1][size_x - 1]
+
+def rec_fib(num):
+    storage = [-1 for _ in range(0, num + 1)]
+    return rec_fib_aux(num, storage)
+def rec_fib_aux(num, storage):
+    if storage[num] >= 0:
+        return storage[num]
+    if num == 0:
+        storage[num] = 0
+        return 0
+    elif num == 1:
+        storage[num] = 1
+        return 1
+    else:
+        storage[num] = rec_fib_aux(num - 1, storage) + rec_fib_aux(num - 2, storage)
+        return storage[num]
+
+def backpack_task(cost_things, weight_things, max_weight):
+    len_ = len(cost_things)
+    shift_ = 1
+    tmp = []
+    things = []
+    price = 0
+    max_price = 0
+
+    for i in range(len_):
+        for j in range(i + shift_, len_):
+            price = cost_things[i]
+            weight = weight_things[i]
+            tmp = [i]
+            while weight <= max_weight or j != len_ - 1:
+                price += cost_things[j]
+                weight += weight_things[j]
+                tmp.append(j)
+            if max_price < price:
+                max_price = price
+                things = tmp
+            shift_ += 1
+        shift_ = 1
+    return max_price, things
+
+class NodePQ:
+
+    def __init__(self, freq=None, left=None, right=None, parent=None):
+        super().__init__()
+        self.freq = freq
+        self.left = left
+        self.right = right
+        self.parent = parent
+
+
+class PrioritQueue:
+
+    def __init__(self):
+        super().__init__()
+        self.nill = NodePQ()
+        self.root = None
+
+    def insert(self, freq):
+        new_node = NodePQ(freq, self.nill, self.nill)
+        if self.root is None:
+            new_node.parent = self.nill
+            self.root = new_node
+            return
+        current_node = self.root
+        parent_node = current_node
+        while current_node != self.nill:
+            parent_node = current_node
+            if current_node.freq > new_node.freq:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        if parent_node.freq < new_node.freq:
+            parent_node.right = new_node
+        else:
+            parent_node.left = new_node
+        new_node.parent = parent_node
+
+    def transplant(self, node, node_tr):
+        if node.parent == self.nill:
+            self.root = node_tr
+        elif node == node.parent.left:
+            node.parent.left = node_tr
+        else:
+            node.parent.right = node_tr
+        node_tr.parent = node.parent
+
+    def delete(self, del_node:NodePQ):
+        if del_node.left == self.nill:
+            pass
