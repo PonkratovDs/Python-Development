@@ -1561,6 +1561,26 @@ class PrioritQueue:
             parent_node.left = new_node
         new_node.parent = parent_node
 
+    def node_insert(self, new_node):
+        if self.root is None:
+            new_node.parent = self.nill
+            self.root = new_node
+            return
+        current_node = self.root
+        parent_node = current_node
+        while current_node != self.nill:
+            parent_node = current_node
+            if current_node.freq > new_node.freq:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        if parent_node.freq < new_node.freq:
+            parent_node.right = new_node
+        else:
+            parent_node.left = new_node
+        new_node.parent = parent_node
+
+
     def transplant(self, node, node_tr):
         if node.parent == self.nill:
             self.root = node_tr
@@ -1570,6 +1590,46 @@ class PrioritQueue:
             node.parent.right = node_tr
         node_tr.parent = node.parent
 
+    def minimum_list_curr_node(self, curr_node:NodePQ):
+        while curr_node.left != self.nill:
+            curr_node = curr_node.left
+        return curr_node
+
     def delete(self, del_node:NodePQ):
         if del_node.left == self.nill:
-            pass
+            self.transplant(del_node, del_node.right)
+        elif del_node.right == self.nill:
+            self.transplant(del_node, del_node.left)
+        else:
+            min_list_del_node = self.minimum_list_curr_node(del_node.right)
+            if min_list_del_node.parent != del_node:
+                self.transplant(min_list_del_node, min_list_del_node.right)
+                min_list_del_node.right = del_node.right
+                min_list_del_node.right.parent = min_list_del_node
+            self.transplant(del_node, min_list_del_node)
+            min_list_del_node.left = del_node.left
+            min_list_del_node.left.parent = min_list_del_node
+
+    def extract_min(self):
+        return_node = self.minimum_list_curr_node(self.root)
+        self.delete(return_node)
+        return return_node
+
+def createPQ_from_iterable(iterable):
+    PQ = PrioritQueue()
+    for el in iterable:
+        PQ.insert(el)
+    return PQ
+
+def huffman(iterable):
+    n = len(iterable)
+    Q = createPQ_from_iterable(iterable)
+    for _ in range(0, n):
+        z = NodePQ()
+        x = Q.extract_min()
+        y = Q.extract_min()
+        z.left = x
+        z.right = y
+        z.freq = x.freq + y.freq
+        Q.insert(z.freq)
+    return Q.extract_min()
