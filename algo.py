@@ -865,6 +865,4 @@ def trace(func=None, *, handle=sys.stdout):
 def identity(x):
     "i do"
     return x
-
-
 print(identity('23'), identity.__doc__)
