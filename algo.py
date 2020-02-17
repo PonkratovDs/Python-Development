@@ -1,3 +1,6 @@
+import functools
+
+
 def InsertionSort(ar):
     for j in range(1, len(ar)):
         key = ar[j]
@@ -788,10 +791,17 @@ class AVLNode:
         return self
 
 
-def _isEmpty(func):
-    def wrapper(self):
-        if self.root is None:
-            return
+def pre(cond, message):
+    def wrapper(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            assert cond(*args, **kwargs), message
+            return func(*args, **kwargs)
+        return inner
+    return wrapper
+
+
+isEmpty = pre(lambda self, *args: self.root is not None, 'tree is empty')
 
 
 class AVLTree:
@@ -821,48 +831,866 @@ class AVLTree:
         node.right = None
         node.balance()
 
-    #@_isEmpty
+    def initial_node(self, p):
+        return self.root if p is None else p
+
+    @isEmpty
     def findmin(self, p=None):
-        if p is None:
-            p = self.root
+        p = self.initial_node(p)
         return self.findmin(p.left) if p.left else p
 
+    @isEmpty
     def removemin(self, p=None):
-        if p is None:
-            p = self.root
+        p = self.initial_node(p)
         if p.left is None:
             return p.right
         p.left = self.removemin(p.left)
         return p.balance()
 
+    @isEmpty
     def remove(self, key, p=None):
-        if p is None:
-            pass
+        p = self.initial_node(p)
+        if p.left is None and p.right is None and p.key != key:
+            return None
+        if key < p.key:
+            p.left = self.remove(key, p.left)
+        elif key > p.key:
+            p.right = self.remove(key, p.right)
+        else:
+            q = p.left
+            r = p.right
+            del p
+            if not r:
+                return q
+            min_ = self.findmin(r)
+            min_.right = self.removemin(r)
+            min_.left = q
+            return min_.balance
 
 
-a = AVLTree()
-a.insert(125)
-a.insert(54)
-a.removemin()
-print(a.findmin().key)
+'''class RBNode:
 
-import functools
-import sys
-
-
-def trace(func=None, *, handle=sys.stdout):
-    if func is None:
-        return lambda func: trace(func, handle=handle)
-
-    @functools.wraps(func)
-    def inner(*args, **kwargs):
-        print(func.__name__, args, kwargs)
-        return func(*args, **kwargs)
-    return inner
+    def __init__(self, key):
+        super().__init__()
+        self.key = key
+        self.p = None
+        self.left = None
+        self.right = None
+        self.color = 'BLACK'
 
 
-@trace(handle=sys.stdout)
-def identity(x):
-    "i do"
-    return x
-print(identity('23'), identity.__doc__)
+class RBTree:
+
+    def __init__(self):
+        super().__init__()
+        self.nil = RBNode(None)
+        self.root = None
+
+    def Left_Rotate(self, x):
+        if x.right == self.nil:
+            return
+
+        y = x.right
+        x.right = y.left
+
+        if y.left != self.nil:
+            y.left.p = x
+        y.p = x.p
+        if x.p == self.nil:
+            self.root = y
+        elif x == x.p.left:
+            x.p.left = y
+        else:
+            x.p.right = y
+        y.left = x
+
+        x.p = y
+
+    def Right_Rotate(self, y):
+        if y.left == self.nil:
+            return
+
+        x = y.left
+        y.left = x.right
+
+        if x.right != self.nil:
+            x.right.p = y
+        x.p = y.p
+        if y.p == self.nil:
+            self.root = x
+        elif y == y.p.right:
+            y.p.right = x
+        else:
+            y.p.left = x
+        x.right = y
+
+        y.p = x
+
+    def RB_Insert_Fixup(self, z):
+        z.color = 'RED'
+        while z is not self.root and z.p.color == 'RED':
+            if z.p == z.p.p.left:
+                y = z.p.p.right
+                if y.color == 'RED':
+                    z.p.color = 'BLACK'
+                    y.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    z = z.p.p
+                elif z == z.p.right:
+                    z = z.p
+                    self.Left_Rotate(z)
+
+                    z.p.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    self.Right_Rotate(z.p.p)
+
+            else:
+                y = z.p.p.left
+                if y.color == 'RED':
+                    z.p.color = 'BLACK'
+                    y.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    z = z.p.p
+                elif z == z.p.left:
+                    z = z.p
+                    self.Right_Rotate(z)
+                    z.p.color = 'BLACK'
+                    z.p.p.color = 'RED'
+                    self.Left_Rotate(z.p.p)
+
+        self.root.color = 'BLACK'
+
+    def RB_Insert(self, z: 'RBNode'):
+        if self.root is None:
+            self.root = z
+            self.root.p = self.nil
+            self.root.left = self.nil
+            self.root.right = self.nil
+            return
+        y = self.nil
+        x = self.root
+        while x is not self.nil:
+            y = x
+            if z.key < x.key:
+                x = x.left
+            else:
+                x = x.right
+        z.p = y
+
+        if z.key < y.key:
+            y.left = z
+        else:
+            y.right = z
+        z.left = self.nil
+        z.right = self.nil
+        z.color = 'RED'
+        self.RB_Insert_Fixup(z)
+
+rb = RBTree()
+rb.RB_Insert(RBNode(12))
+
+rb.RB_Insert(RBNode(11))
+rb.RB_Insert(RBNode(98))
+rb.RB_Insert(RBNode(3))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))
+rb.RB_Insert(RBNode(12))'''
+
+
+class NilNode(object):
+    def __init__(self):
+        self.red = False
+
+    def children_count(self):
+        return 0
+
+
+NIL = NilNode()
+
+
+class RBNode(object):
+    def __init__(self, key):
+        self.red = False
+        self.parent = None
+        self.key = key
+        self.left = NIL
+        self.right = NIL
+
+    def __str__(self):
+        return '{color} {key} Node'.format(
+            color='RED' if self.red else 'BLACK', key=self.key)
+
+    def __iter__(self):
+        yield self.key
+        if self.left != NIL:
+            yield from self.left.__iter__()
+        if self.right != NIL:
+            yield from self.right.__iter__()
+
+    def children_count(self) -> int:
+        return sum((int(self.left != NIL), int(self.right != NIL)))
+
+    def has_children(self) -> bool:
+        return bool(self.children_count())
+
+
+class RBTree(object):
+    def __init__(self):
+        self.root = None
+        self.size = 0
+
+    def __iter__(self):
+        if not self.root:
+            return list()
+        yield from self.root.__iter__()
+
+    def insert(self, key):
+        self.size += 1
+        new_node = RBNode(key)
+        if self.root is None:
+            new_node.red = False
+            self.root = new_node
+            return
+        currentNode = self.root
+        while currentNode != NIL:
+            potentialParent = currentNode
+            if new_node.key < currentNode.key:
+                currentNode = currentNode.left
+            else:
+                currentNode = currentNode.right
+        new_node.parent = potentialParent
+        if new_node.key < new_node.parent.key:
+            new_node.parent.left = new_node
+        else:
+            new_node.parent.right = new_node
+        self.fix_tree_after_add(new_node)
+
+    def contains(self, key, curr=None):
+        if curr is None:
+            curr = self.root
+        while curr != NIL and key != curr.key:
+            if key < curr.key:
+                curr = curr.left
+            else:
+                curr = curr.right
+        return curr
+
+    def fix_tree_after_add(self, new_node):
+        while new_node.parent.red == True and new_node != self.root:
+            if new_node.parent == new_node.parent.parent.left:
+                uncle = new_node.parent.parent.right
+                if uncle.red:
+                    new_node.parent.red = False
+                    uncle.red = False
+                    new_node.parent.parent.red = True
+                    new_node = new_node.parent.parent
+                else:
+                    if new_node == new_node.parent.right:
+                        new_node = new_node.parent
+                        self.left_rotate(new_node)
+                    new_node.parent.red = False
+                    new_node.parent.parent.red = True
+                    self.right_rotate(new_node.parent.parent)
+            else:
+                uncle = new_node.parent.parent.left
+                if uncle.red:
+                    new_node.parent.red = False
+                    uncle.red = False
+                    new_node.parent.parent.red = True
+                    new_node = new_node.parent.parent
+                else:
+                    if new_node == new_node.parent.left:
+                        new_node = new_node.parent
+                        self.right_rotate(new_node)
+                    new_node.parent.red = False
+                    new_node.parent.parent.red = True
+                    self.left_rotate(new_node.parent.parent)
+        self.root.red = False
+
+    def left_rotate(self, new_node):
+        sibling = new_node.right
+        new_node.right = sibling.left
+        if sibling.left is not None:
+            sibling.left.parent = new_node
+        sibling.parent = new_node.parent
+        if new_node.parent is None:
+            self.root = sibling
+        else:
+            if new_node == new_node.parent.left:
+                new_node.parent.left = sibling
+            else:
+                new_node.parent.right = sibling
+        sibling.left = new_node
+        new_node.parent = sibling
+
+    def right_rotate(self, new_node):
+        sibling = new_node.left
+        new_node.right = sibling.right
+        if sibling.right is not None:
+            sibling.right.parent = new_node
+        sibling.parent = new_node.parent
+        if new_node.parent is None:
+            self.root = sibling
+        else:
+            if new_node == new_node.parent.right:
+                new_node.parent.right = sibling
+            else:
+                new_node.parent.left = sibling
+        sibling.right = new_node
+        new_node.parent = sibling
+
+    def transplant(self, node, tr_node):
+        if node.parent == NIL:
+            self.root = tr_node
+        if node.parent is not None:
+            if node == node.parent.left:
+                node.parent.left = tr_node
+            else:
+                node.parent.right = tr_node
+            tr_node.parent = node.parent
+
+    def tree_minimum(self, current_node):
+        while current_node.left != NIL:
+            current_node = current_node.left
+        return current_node
+
+    '''def _find_in_order_successor(self, node_to_remove):
+        right_node = node_to_remove.right
+        left_child_node = right_node.left
+        if left_child_node == NIL:
+            return right_node
+        while left_child_node.left != NIL:
+            left_child_node = left_child_node.left
+        return left_child_node
+
+    def delete(self, key):
+        node_to_remove = self.contains(key)
+        if node_to_remove  == NIL:
+            return
+        if node_to_remove.children_count() == 2:
+            successor = self._find_in_order_successor(node_to_remove)
+            node_to_remove.key = successor.key  # switch the value
+            node_to_remove = successor
+        self._remove(node_to_remove)
+        self.size -= 1
+
+    def _remove(self, node):
+        left_child = node.left
+        right_child = node.right
+        not_nil_child = left_child if left_child != NIL else right_child
+        if node == self.root:
+            if not_nil_child != NIL:
+                self.root = not_nil_child
+                self.root.parent = None
+                self.root.red = False
+            else:
+                self.root = None
+        elif node.color:
+            if not node.has_children():
+                self._remove_leaf(node)
+            else:
+                raise Exception('Unexpected behavior')
+        else:
+            if right_child.has_children() or left_child.has_children():
+                raise Exception('The red child of a black node with 0 or 1 children'
+                                ' cannot have children, otherwise the black height of the tree becomes invalid! ')
+            if not_nil_child.red:
+                node.key = not_nil_child.key
+                node.left = not_nil_child.left
+                node.right = not_nil_child.right
+            else:
+                self._remove_black_node(node)'''
+
+    '''def delete(self, del_node):
+        if del_node == NIL:
+            return
+        elif del_node == self.root:
+            if del_node.left:
+                del_node.left = self.root
+                self.right_rotate(del_node)
+                self.delete_fixup(del_node.left)
+                return
+        tmp = del_node
+        tmp_original_color = tmp.red
+        if del_node.left == NIL:
+            child = del_node.right
+            self.transplant(del_node, del_node.right)
+        elif del_node.right == NIL:
+            child = del_node.left
+            self.transplant(del_node, del_node.left)
+        else:
+            tmp = self.tree_minimum(del_node.right)
+            tmp_original_color = tmp.red
+            child = tmp.right
+            if tmp.parent == del_node:
+                child.parent = tmp
+            else:
+                self.transplant(tmp, tmp.right)
+                tmp.right = del_node.right
+                tmp.right.parent = tmp
+            self.transplant(del_node, tmp)
+            tmp.left = del_node.left
+            tmp.left.parent = tmp
+            tmp.red = del_node.red
+        if not tmp_original_color:
+            self.delete_fixup(child)
+
+    def delete_fixup(self, child):
+        while child != self.root and not child.red:
+            if child == child.parent.left:
+                brother = child.parent.right
+                if brother.red:
+                    brother.red = False
+                    child.parent.red = True
+                    self.left_rotate(child.parent)
+                    brother = child.parent.right
+                if brother != NIL:
+                    if not brother.left.red and not brother.right.red:
+                        brother.red = True
+                        child = child.parent
+                    elif not brother.right.red:
+                        brother.left.red = False
+                        brother.red = True
+                        self.right_rotate(brother)
+                        brother = child.parent.right
+                    brother.red = child.parent.red
+                    child.parent.red = False
+                    brother.right.color = False
+                    self.left_rotate(child.parent)
+                child = self.root
+            else:
+                brother = child.parent.left
+                if brother.red:
+                    brother.red = False
+                    child.parent.red = True
+                    self.right_rotate(child.parent)
+                    brother = child.parent.left
+                if brother != NIL:
+                    if not brother.right.red and not brother.left.red:
+                        brother.red = True
+                        child = child.parent
+                    elif not brother.left.red:
+                        brother.right.red = False
+                        brother.red = True
+                        self.left_rotate(brother)
+                        brother = child.parent.left
+                    brother.red = child.parent.red
+                    child.parent.red = False
+                    brother.left.color = False
+                    self.right_rotate(child.parent)
+                child = self.root'''
+
+
+'''if __name__ == "__main__":
+    tree = RBTree()
+    tree.insert(1)
+    tree.insert(2)
+    tree.insert(4)
+    tree.insert(5)
+    tree.insert(7)
+
+    #tree.delete(tree.contains(1))
+    print(tree.contains(3))
+    print(tree.root.key)'''
+
+
+def memoized_cut_rod(prices, cut_num):
+    new_prices = []
+    _inf = float('-inf')
+    for i in range(0, cut_num + 1):
+        new_prices.append(_inf)
+    return memoized_cut_rod_aux(prices, cut_num, new_prices)
+
+
+def memoized_cut_rod_aux(prices, cut_nom, new_prices):
+    if new_prices[cut_nom] >= 0:
+        return new_prices[cut_nom]
+    curr_price = 0 if cut_nom == 0 else float('-inf')
+    for curr_nom in range(1, cut_nom + 1):
+        curr_price = max(
+            curr_nom,
+            prices[curr_nom] +
+            memoized_cut_rod_aux(
+                prices,
+                cut_nom -
+                curr_nom,
+                new_prices))
+    new_prices[cut_nom] = curr_price
+    return curr_price
+
+
+def bottom_up_cut_rod(prices, cut_num):
+    new_prices = [0]
+    mInf = float('-inf')
+    for j in range(1, cut_num + 1):
+        curr_price = mInf
+        for i in range(1, j + 1):
+            curr_price = max(curr_price, prices[i] + new_prices[j - i])
+        new_prices.append(curr_price)
+    return new_prices[cut_num]
+
+
+def extended_bottom_up_cut_rod(p, n):
+    r = [-1 for _ in range(len(p))]
+    s = [-1 for _ in range(len(p))]
+    mInf = float('-inf')
+    for j in range(1, n + 1):
+        q = mInf
+        for i in range(1, j + 1):
+            if q < p[i] + r[j - i]:
+                q = p[i] + r[j - i]
+                s[j] = i
+        r[j] = q
+    return r, s
+
+
+def print_cut_rod_solution(p, n):
+    _, s = extended_bottom_up_cut_rod(p, n)
+    while n > 0:
+        print(s[n])
+        n -= s[n]
+
+
+def calculation_fibonacci(number):
+    if number == 0:
+        return 0
+    elif number == 1:
+        return 1
+    else:
+        return calculation_fibonacci(
+            number - 1) + calculation_fibonacci(number - 2)
+
+
+def memoized_fibonacci(number):
+    mInf = float('-inf')
+    storage = [mInf for _ in range(number + 1)]
+    storage[0] = 0
+    storage[1] = 1
+    return memoized_fibonacci_aux(number, storage)
+
+
+def memoized_fibonacci_aux(number, storage):
+    if storage[number] >= 0:
+        return storage[number]
+    else:
+        i = 2
+        while i < number:
+            storage[i] = storage[i - 1] + storage[i - 2]
+            i += 1
+    return storage[number - 1] + storage[number - 2]
+
+
+def bottom_up_fibonacci(number):
+    storage = [0 for _ in range(number + 1)]
+    storage[0] = 0
+    storage[1] = 1
+
+    for j in range(2, number + 1):
+        storage[j] = storage[j - 1] + storage[j - 2]
+    return storage[number]
+
+
+def lcs_length(X, Y):
+    m = len(X)
+    n = len(Y)
+    b = [[0 for _ in range(0, n)] for _ in range(0, m)]
+    c = [[0 for _ in range(0, n + 1)] for _ in range(0, m + 1)]
+    for i in range(1, m):
+        for j in range(1, n):
+            if X[i] == Y[j]:
+                c[i][j] = c[i - 1][j - 1] + 1
+                b[i][j] = '/'
+            elif c[i - 1][j] >= c[i][j - 1]:
+                c[i][j] = c[i - 1][j]
+                b[i][j] = '|'
+            else:
+                c[i][j] = c[i][j - 1]
+                b[i][j] = '_'
+    return c, b
+
+
+def print_lcs(b, X, i, j):
+    if i == 0 or j == 0:
+        return
+    if b[i][j] == '/':
+        print_lcs(b, X, i - 1, j - 1)
+        print(X[i])
+    elif b[i][j] == '|':
+        print_lcs(b, X, i - 1, j)
+    else:
+        print_lcs(b, X, i, j - 1)
+
+
+'''c, b = lcs_length('sfsdf', 'sdefdsfds')
+X, Y = 'sfsdf', 'sdefdsfds'
+print_lcs(b, X, len(X) - 1, len(Y) - 1)'''
+
+
+def optimal_bst(p, q, n):
+    e = [[0 for _ in range(0, n + 1)] for _ in range(1, n + 2)]
+    w = [[0 for _ in range(0, n + 1)] for _ in range(1, n + 2)]
+    root = [[0 for _ in range(1, n + 1)] for _ in range(1, n + 1)]
+    inf = float('inf')
+
+    for i in range(1, n + 2):
+        e[i][i - 1] = q[i - 1]
+        w[i][i - 1] = q[i - 1]
+    for l in range(1, n + 1):
+        for i in range(1, n - l + 2):
+            j = i + l - 1
+            e[i][j] = inf
+            w[i][j] = w[i][j - 1] + p[j] + q[j]
+            for r in range(i, j + 1):
+                t = e[i][r - 1] + e[r + 1][j] + w[i][j]
+                if t < e[i][j]:
+                    e[i][j] = t
+                    root[i][j] = r
+    return e, root
+
+
+def inc_seq(items):
+    prev_el = items[0]
+    tmp = [prev_el]
+    max_inc_seq = tmp
+    for curr_el in items[1:]:
+        if prev_el <= curr_el:
+            tmp.append(curr_el)
+        else:
+            tmp = [curr_el]
+        if len(tmp) > len(max_inc_seq):
+            max_inc_seq = tmp
+        prev_el = curr_el
+    return max_inc_seq
+
+
+def minimal_path_field(size_x, size_y, A: 'arr[size_y - 1][size_x - 1]'):
+    inf = float('inf')
+    W = [[inf for _ in range(0, size_x)] for _ in range(0, size_y)]
+    W[0][0] = A[0][0]
+    W[1][0] = W[0][0] + A[1][0]
+    W[0][1] = W[0][0] + A[0][1]
+
+    for i in range(1, size_y):
+        for j in range(1, size_x):
+            W[i][j] = min(W[i - 1][j], W[i][j - 1], W[i - 1][j - 1]) + A[i][j]
+
+    return W[size_y - 1][size_x - 1]
+
+def rec_fib(num):
+    storage = [-1 for _ in range(0, num + 1)]
+    return rec_fib_aux(num, storage)
+def rec_fib_aux(num, storage):
+    if storage[num] >= 0:
+        return storage[num]
+    if num == 0:
+        storage[num] = 0
+        return 0
+    elif num == 1:
+        storage[num] = 1
+        return 1
+    else:
+        storage[num] = rec_fib_aux(num - 1, storage) + rec_fib_aux(num - 2, storage)
+        return storage[num]
+
+def backpack_task(cost_things, weight_things, max_weight):
+    len_ = len(cost_things)
+    shift_ = 1
+    tmp = []
+    things = []
+    price = 0
+    max_price = 0
+
+    for i in range(len_):
+        for j in range(i + shift_, len_):
+            price = cost_things[i]
+            weight = weight_things[i]
+            tmp = [i]
+            while weight <= max_weight or j != len_ - 1:
+                price += cost_things[j]
+                weight += weight_things[j]
+                tmp.append(j)
+            if max_price < price:
+                max_price = price
+                things = tmp
+            shift_ += 1
+        shift_ = 1
+    return max_price, things
+
+class NodePQ:
+
+    def __init__(self, freq=None, left=None, right=None, parent=None):
+        super().__init__()
+        self.freq = freq
+        self.left = left
+        self.right = right
+        self.parent = parent
+
+
+class PrioritQueue:
+
+    def __init__(self):
+        super().__init__()
+        self.nill = NodePQ()
+        self.root = None
+
+    def insert(self, freq):
+        new_node = NodePQ(freq, self.nill, self.nill)
+        if self.root is None:
+            new_node.parent = self.nill
+            self.root = new_node
+            return
+        current_node = self.root
+        parent_node = current_node
+        while current_node != self.nill:
+            parent_node = current_node
+            if current_node.freq > new_node.freq:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        if parent_node.freq < new_node.freq:
+            parent_node.right = new_node
+        else:
+            parent_node.left = new_node
+        new_node.parent = parent_node
+
+    def node_insert(self, new_node):
+        if self.root is None:
+            new_node.parent = self.nill
+            self.root = new_node
+            return
+        current_node = self.root
+        parent_node = current_node
+        while current_node != self.nill:
+            parent_node = current_node
+            if current_node.freq > new_node.freq:
+                current_node = current_node.left
+            else:
+                current_node = current_node.right
+        if parent_node.freq < new_node.freq:
+            parent_node.right = new_node
+        else:
+            parent_node.left = new_node
+        new_node.parent = parent_node
+
+
+    def transplant(self, node, node_tr):
+        if node.parent == self.nill:
+            self.root = node_tr
+        elif node == node.parent.left:
+            node.parent.left = node_tr
+        else:
+            node.parent.right = node_tr
+        node_tr.parent = node.parent
+
+    def minimum_list_curr_node(self, curr_node:NodePQ):
+        while curr_node.left != self.nill:
+            curr_node = curr_node.left
+        return curr_node
+
+    def delete(self, del_node:NodePQ):
+        if del_node.left == self.nill:
+            self.transplant(del_node, del_node.right)
+        elif del_node.right == self.nill:
+            self.transplant(del_node, del_node.left)
+        else:
+            min_list_del_node = self.minimum_list_curr_node(del_node.right)
+            if min_list_del_node.parent != del_node:
+                self.transplant(min_list_del_node, min_list_del_node.right)
+                min_list_del_node.right = del_node.right
+                min_list_del_node.right.parent = min_list_del_node
+            self.transplant(del_node, min_list_del_node)
+            min_list_del_node.left = del_node.left
+            min_list_del_node.left.parent = min_list_del_node
+
+    def extract_min(self):
+        return_node = self.minimum_list_curr_node(self.root)
+        self.delete(return_node)
+        return return_node
+
+def createPQ_from_iterable(iterable):
+    PQ = PrioritQueue()
+    for el in iterable:
+        PQ.insert(el)
+    return PQ
+
+def huffman(iterable):
+    n = len(iterable)
+    Q = createPQ_from_iterable(iterable)
+    for _ in range(0, n):
+        z = NodePQ()
+        x = Q.extract_min()
+        y = Q.extract_min()
+        z.left = x
+        z.right = y
+        z.freq = x.freq + y.freq
+        Q.insert(z.freq)
+    return Q.extract_min()
+
+'''from collections import deque
+
+class GNode:
+    def __init__(self, key):
+        super().__init__()
+        self.key = key
+        self.color = None
+        self.p = None
+        self.d = None
+
+class Graph:
+    def __init__(self, iterable:'arr[node_key][node s adjacency list]'):
+        super().__init__()
+        
+        tmp = iterable
+        for i in range(0, len(iterable)):
+            for j in range(0, len(iterable[i])):
+                tmp[i][j] = GNode(tmp[i][j])
+            tmp[i] = GNode(tmp[i])
+        iterable = tmp
+
+        self.G = {k : v for k in range(1, len(iterable) + 1) for v in iterable}
+
+     '''
+
+from collections import defaultdict
+
+class Graph:
+
+    def __init__(self):
+        super().__init__()
+        self.graph = defaultdict(list)
+
+    def addEdge(self, u, v):
+        self.graph[u].append(v)
+
+    def BFS(self, s):
+        visited = [False] * (len(self.graph))
+        queue = []
+        queue.append(s)
+        visited[s] = True
+
+        while queue:
+            s = queue.pop(0)
+            print(s, end=' ')
+
+            for i in self.graph[s]:
+                if visited[i] == False:
+                    queue.append(i)
+                    visited[i] = True
+
+g = Graph()
+g.addEdge(0, 1) 
+g.addEdge(0, 2) 
+g.addEdge(1, 2) 
+g.addEdge(2, 0) 
+g.addEdge(2, 3) 
+g.addEdge(3, 3) 
+
+g.BFS(0)
