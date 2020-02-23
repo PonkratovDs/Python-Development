@@ -1686,6 +1686,7 @@ class Graph:
                     visited[i] = True
 
 from binarytree import Node
+
 class NodeP(Node):
     def __init__(self, value, left=None, right=None, parent=None):
         Node.__init__(self, value, left, right)
@@ -1706,14 +1707,19 @@ class NodeP(Node):
             return
         self.fix_parent(curr_node=self.left, c=c)
         self.fix_parent(curr_node=self.right, c=c)
-    def lca(self):
-        pass
-        
     
-ntr = NodeP(45)
-ntr.left = NodeP(24)
-ntr.right = NodeP(24435)
-ntr.left.left = NodeP(2343221)
-ntr.pprint(index=True)
-ntr.fix_parent()
-print(ntr.left.left.p.value)
+    def lca(self, v1, v2):
+        self.fix_parent()
+        parents_v1 = _lca_helper(v1)
+        parents_v2 = _lca_helper(v2)
+        return parents_v1.intersection(parents_v2).pop()
+        
+
+def _lca_helper(v,  parents_v=set()):
+    if v.p is not None:
+        parents_v.add(v.__repr__())
+        v = v.p
+        _lca_helper(v, parents_v)
+    return parents_v
+
+
