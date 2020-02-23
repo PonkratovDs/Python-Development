@@ -600,7 +600,7 @@ print(b.tree_search(b[0], 214).key)
 print(b.__str__())'''
 
 
-class RbNode:
+class GNode:
 
     def __init__(self, key):
         super().__init__()
@@ -1685,4 +1685,35 @@ class Graph:
                     queue.append(i)
                     visited[i] = True
 
-import bintrees
+from binarytree import Node
+class NodeP(Node):
+    def __init__(self, value, left=None, right=None, parent=None):
+        Node.__init__(self, value, left, right)
+        self.p = parent
+    def fix_parent(self, curr_node=None, c=0):
+        curr_node = self if curr_node is None else curr_node
+        if c == len(self):
+            return
+        i = 0
+        c+=1
+        if curr_node.left is not None:
+            curr_node.left.p = curr_node
+            i+=1
+        if curr_node.right is not None:
+            curr_node.right.p = curr_node
+            i+=1
+        if not i:
+            return
+        self.fix_parent(curr_node=self.left, c=c)
+        self.fix_parent(curr_node=self.right, c=c)
+    def lca(self):
+        pass
+        
+    
+ntr = NodeP(45)
+ntr.left = NodeP(24)
+ntr.right = NodeP(24435)
+ntr.left.left = NodeP(2343221)
+ntr.pprint(index=True)
+ntr.fix_parent()
+print(ntr.left.left.p.value)
