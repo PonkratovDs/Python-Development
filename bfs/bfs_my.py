@@ -53,4 +53,4 @@ ug = UndirectedGraph({
 })
 print(ug)
 
-print(bfs(ug, 1, 2))
+print(bfs(ug, 1, 6))
