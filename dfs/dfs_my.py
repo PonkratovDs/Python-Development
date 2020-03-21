@@ -72,4 +72,5 @@ ug = UndirectedGraph({
     12: []
 })
 
-print(dfs(ug, 0))
+print(dfs(ug, 1))
+
